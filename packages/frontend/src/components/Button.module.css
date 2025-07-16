@@ -1,0 +1,70 @@
+/* Button component styles - colocated with component */
+.button {
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  outline: none;
+}
+
+.button:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.primary {
+  background-color: #0066cc;
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  background-color: #0052a3;
+}
+
+.secondary {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #dee2e6;
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: #e9ecef;
+}
+
+.outline {
+  background-color: transparent;
+  color: #0066cc;
+  border: 1px solid #0066cc;
+}
+
+.outline:hover:not(:disabled) {
+  background-color: #0066cc;
+  color: white;
+}
+
+/* Sizes */
+.small {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.medium {
+  padding: 8px 16px;
+  font-size: 16px;
+}
+
+.large {
+  padding: 12px 24px;
+  font-size: 18px;
+}
