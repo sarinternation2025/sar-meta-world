@@ -1,0 +1,78 @@
+#! influxdb-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: influxdb
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: influxdb
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: influxdb
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: influxdb
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: influxdb-tsdb
+                  image: influxdb:2.7-alpine
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+                      value: "my-super-secret-admin-token"
+                    - name: DOCKER_INFLUXDB_INIT_BUCKET
+                      value: "metrics"
+                    - name: DOCKER_INFLUXDB_INIT_MODE
+                      value: "setup"
+                    - name: DOCKER_INFLUXDB_INIT_ORG
+                      value: "chatapp"
+                    - name: DOCKER_INFLUXDB_INIT_PASSWORD
+                      value: "admin123"
+                    - name: DOCKER_INFLUXDB_INIT_RETENTION
+                      value: "30d"
+                    - name: DOCKER_INFLUXDB_INIT_USERNAME
+                      value: "admin"
+                  livenessProbe:
+                    exec:
+                        command: [influx ping]
+                    periodSeconds: 30
+                    timeoutSeconds: 10
+                    failureThreshold: 5
+                  ports:
+                    - name: influxdb-8086
+                      containerPort: 8086
+                  volumeMounts:
+                    - name: var-lib-influxdb2
+                      mountPath: /var/lib/influxdb2
+                    - name: etc-influxdb2
+                      mountPath: /etc/influxdb2
+                    - name: etc-influxdb2-influxdb-conf
+                      mountPath: /etc/influxdb2/influxdb.conf
+                      readOnly: true
+                    - name: var-log-influxdb
+                      mountPath: /var/log/influxdb
+            volumes:
+                - name: var-lib-influxdb2
+                  persistentVolumeClaim:
+                    claimName: influxdb-influxdb-data
+                - name: etc-influxdb2
+                  persistentVolumeClaim:
+                    claimName: influxdb-influxdb-config
+                - name: etc-influxdb2-influxdb-conf
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/influxdb/influxdb.conf
+                  readOnly: true
+                - name: var-log-influxdb
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/influxdb

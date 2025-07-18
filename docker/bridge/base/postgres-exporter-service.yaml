@@ -1,0 +1,21 @@
+#! postgres-exporter-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: postgres-exporter-published
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: postgres-exporter
+spec:
+    selector:
+        com.docker.compose.project: docker
+        com.docker.compose.service: postgres-exporter
+    ports:
+        - name: postgres-e-9187
+          port: 9187
+          protocol: TCP
+          targetPort: postgres-e-9187
+
+# check if there is at least one published port

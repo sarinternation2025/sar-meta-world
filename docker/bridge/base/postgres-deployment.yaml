@@ -1,0 +1,77 @@
+#! postgres-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: postgres
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: postgres
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: postgres
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: postgres
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: postgres-db
+                  image: postgres:15-alpine
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: POSTGRES_DB
+                      value: "chatapp"
+                    - name: POSTGRES_INITDB_ARGS
+                      value: "--auth-host=scram-sha-256"
+                    - name: POSTGRES_PASSWORD
+                      value: "postgres123"
+                    - name: POSTGRES_USER
+                      value: "postgres"
+                  livenessProbe:
+                    exec:
+                        command:
+                            - /bin/sh
+                            - -c
+                            - pg_isready -U postgres -d chatapp
+                    periodSeconds: 10
+                    timeoutSeconds: 5
+                    failureThreshold: 5
+                  ports:
+                    - name: postgres-5432
+                      containerPort: 5432
+                  volumeMounts:
+                    - name: var-lib-postgresql-data
+                      mountPath: /var/lib/postgresql/data
+                    - name: docker-entrypoint-initdb-d-init-sql
+                      mountPath: /docker-entrypoint-initdb.d/init.sql
+                      readOnly: true
+                    - name: etc-postgresql-postgresql-conf
+                      mountPath: /etc/postgresql/postgresql.conf
+                      readOnly: true
+                    - name: var-log-postgresql
+                      mountPath: /var/log/postgresql
+            volumes:
+                - name: var-lib-postgresql-data
+                  persistentVolumeClaim:
+                    claimName: postgres-postgres-data
+                - name: docker-entrypoint-initdb-d-init-sql
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/postgres/init.sql
+                  readOnly: true
+                - name: etc-postgresql-postgresql-conf
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/postgres/postgresql.conf
+                  readOnly: true
+                - name: var-log-postgresql
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/postgres

@@ -1,0 +1,18 @@
+#! postgres-exporter-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: postgres-exporter
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: postgres-exporter
+spec:
+    selector:
+        com.docker.compose.project: docker
+        com.docker.compose.service: postgres-exporter
+    ports:
+        - name: postgres-e-9187
+          port: 9187
+          targetPort: postgres-e-9187

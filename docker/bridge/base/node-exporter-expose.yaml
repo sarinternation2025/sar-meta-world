@@ -1,0 +1,18 @@
+#! node-exporter-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: node-exporter
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: node-exporter
+spec:
+    selector:
+        com.docker.compose.project: docker
+        com.docker.compose.service: node-exporter
+    ports:
+        - name: node-expor-9100
+          port: 9100
+          targetPort: node-expor-9100

@@ -1,0 +1,21 @@
+#! influxdb-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: influxdb-published
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: influxdb
+spec:
+    selector:
+        com.docker.compose.project: docker
+        com.docker.compose.service: influxdb
+    ports:
+        - name: influxdb-8086
+          port: 8086
+          protocol: TCP
+          targetPort: influxdb-8086
+
+# check if there is at least one published port

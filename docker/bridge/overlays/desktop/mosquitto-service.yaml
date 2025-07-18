@@ -1,0 +1,11 @@
+#! mosquitto-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: mosquitto-published
+    namespace: docker
+spec:
+    type: LoadBalancer
+
+# check if there is at least one published port

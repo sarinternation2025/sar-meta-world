@@ -1,0 +1,36 @@
+#! redis-exporter-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: redis-exporter
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: redis-exporter
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: redis-exporter
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: redis-exporter
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: redis-exporter
+                  image: oliver006/redis_exporter:v1.55.0
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: REDIS_ADDR
+                      value: "redis://redis:6379"
+                  ports:
+                    - name: redis-expo-9121
+                      containerPort: 9121

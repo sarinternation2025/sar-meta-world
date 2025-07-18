@@ -1,0 +1,79 @@
+#! grafana-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: grafana
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: grafana
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: grafana
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: grafana
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: grafana-dashboard
+                  image: grafana/grafana:10.2.0
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: GF_INSTALL_PLUGINS
+                      value: "grafana-clock-panel,grafana-simple-json-datasource,influxdb-datasource"
+                    - name: GF_SECURITY_ADMIN_PASSWORD
+                      value: "admin123"
+                    - name: GF_SECURITY_ADMIN_USER
+                      value: "admin"
+                    - name: GF_USERS_ALLOW_SIGN_UP
+                      value: "false"
+                  livenessProbe:
+                    exec:
+                        command:
+                            - /bin/sh
+                            - -c
+                            - curl -f http://localhost:3000/api/health || exit 1
+                    periodSeconds: 30
+                    timeoutSeconds: 10
+                    failureThreshold: 5
+                  ports:
+                    - name: grafana-3000
+                      containerPort: 3000
+                  volumeMounts:
+                    - name: var-lib-grafana
+                      mountPath: /var/lib/grafana
+                    - name: etc-grafana-provisioning-datasources
+                      mountPath: /etc/grafana/provisioning/datasources
+                      readOnly: true
+                    - name: etc-grafana-provisioning-dashboards
+                      mountPath: /etc/grafana/provisioning/dashboards
+                      readOnly: true
+                    - name: etc-grafana-grafana-ini
+                      mountPath: /etc/grafana/grafana.ini
+                      readOnly: true
+            volumes:
+                - name: var-lib-grafana
+                  persistentVolumeClaim:
+                    claimName: grafana-grafana-data
+                - name: etc-grafana-provisioning-datasources
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/grafana/datasources
+                  readOnly: true
+                - name: etc-grafana-provisioning-dashboards
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/grafana/dashboards
+                  readOnly: true
+                - name: etc-grafana-grafana-ini
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/grafana/custom.ini
+                  readOnly: true

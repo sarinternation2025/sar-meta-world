@@ -1,0 +1,18 @@
+#! influxdb-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: influxdb
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: influxdb
+spec:
+    selector:
+        com.docker.compose.project: docker
+        com.docker.compose.service: influxdb
+    ports:
+        - name: influxdb-8086
+          port: 8086
+          targetPort: influxdb-8086

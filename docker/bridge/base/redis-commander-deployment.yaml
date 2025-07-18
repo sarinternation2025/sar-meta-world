@@ -1,0 +1,40 @@
+#! redis-commander-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: redis-commander
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: redis-commander
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: redis-commander
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: redis-commander
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: redis-commander
+                  image: rediscommander/redis-commander:latest
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: HTTP_PASSWORD
+                      value: "admin123"
+                    - name: HTTP_USER
+                      value: "admin"
+                    - name: REDIS_HOSTS
+                      value: "local:redis:6379"
+                  ports:
+                    - name: redis-comm-8081
+                      containerPort: 8081

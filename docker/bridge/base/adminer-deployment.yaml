@@ -1,0 +1,38 @@
+#! adminer-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: adminer
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: adminer
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: adminer
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: adminer
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: adminer-db
+                  image: adminer:4.8.1
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: ADMINER_DEFAULT_SERVER
+                      value: "postgres"
+                    - name: ADMINER_DESIGN
+                      value: "pepa-linha"
+                  ports:
+                    - name: adminer-8080
+                      containerPort: 8080

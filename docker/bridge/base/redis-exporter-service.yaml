@@ -1,0 +1,19 @@
+#! redis-exporter-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: redis-exporter-published
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: redis-exporter
+spec:
+    selector:
+        com.docker.compose.project: docker
+        com.docker.compose.service: redis-exporter
+    ports:
+        - name: redis-expo-9121
+          port: 9121
+          protocol: TCP
+          targetPort: redis-expo-9121

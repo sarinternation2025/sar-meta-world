@@ -1,0 +1,21 @@
+#! redis-commander-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: redis-commander-published
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: redis-commander
+spec:
+    selector:
+        com.docker.compose.project: docker
+        com.docker.compose.service: redis-commander
+    ports:
+        - name: redis-comm-8081
+          port: 8081
+          protocol: TCP
+          targetPort: redis-comm-8081
+
+# check if there is at least one published port

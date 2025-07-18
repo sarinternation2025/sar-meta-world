@@ -1,0 +1,9 @@
+#! prometheus-prometheus_data-persistentVolumeClaim.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: prometheus-prometheus-data
+    namespace: docker
+spec:
+    storageClassName: "hostpath" # see docker/desktop-storage-provisioner

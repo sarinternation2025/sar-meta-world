@@ -1,0 +1,18 @@
+#! mosquitto-mosquitto_data-persistentVolumeClaim.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: mosquitto-mosquitto-data
+    namespace: docker
+    labels:
+        com.docker.compose.service: mosquitto
+        com.docker.compose.volume: mosquitto_data
+spec:
+    accessModes:
+        # TODO would need to check which services use this volume
+        - ReadWriteOnce
+    volumeMode: Filesystem
+    resources:
+        requests:
+            storage: 100Mi

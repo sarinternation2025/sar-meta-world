@@ -1,0 +1,28 @@
+#! kustomization.yaml
+# Generated code, do not edit
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+    - ../../base
+patches:
+    - path: adminer-service.yaml
+    - path: frontend-service.yaml
+    - path: grafana-grafana_data-persistentVolumeClaim.yaml
+    - path: grafana-service.yaml
+    - path: influxdb-influxdb_config-persistentVolumeClaim.yaml
+    - path: influxdb-influxdb_data-persistentVolumeClaim.yaml
+    - path: influxdb-service.yaml
+    - path: mosquitto-mosquitto_data-persistentVolumeClaim.yaml
+    - path: mosquitto-mosquitto_logs-persistentVolumeClaim.yaml
+    - path: mosquitto-service.yaml
+    - path: nginx-service.yaml
+    - path: node-exporter-service.yaml
+    - path: postgres-exporter-service.yaml
+    - path: postgres-postgres_data-persistentVolumeClaim.yaml
+    - path: postgres-service.yaml
+    - path: prometheus-prometheus_data-persistentVolumeClaim.yaml
+    - path: prometheus-service.yaml
+    - path: redis-commander-service.yaml
+    - path: redis-exporter-service.yaml
+    - path: redis-redis_data-persistentVolumeClaim.yaml
+    - path: redis-service.yaml

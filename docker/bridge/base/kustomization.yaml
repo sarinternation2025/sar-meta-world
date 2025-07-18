@@ -1,0 +1,55 @@
+#! kustomization.yaml
+# Generated code, do not edit
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+    - 0-docker-namespace.yaml
+    - adminer-deployment.yaml
+    - adminer-expose.yaml
+    - adminer-service.yaml
+    - backend-network-policy.yaml
+    - frontend-deployment.yaml
+    - frontend-expose.yaml
+    - frontend-network-policy.yaml
+    - frontend-service.yaml
+    - grafana-deployment.yaml
+    - grafana-expose.yaml
+    - grafana-grafana_data-persistentVolumeClaim.yaml
+    - grafana-service.yaml
+    - influxdb-deployment.yaml
+    - influxdb-expose.yaml
+    - influxdb-influxdb_config-persistentVolumeClaim.yaml
+    - influxdb-influxdb_data-persistentVolumeClaim.yaml
+    - influxdb-service.yaml
+    - mosquitto-deployment.yaml
+    - mosquitto-expose.yaml
+    - mosquitto-mosquitto_data-persistentVolumeClaim.yaml
+    - mosquitto-mosquitto_logs-persistentVolumeClaim.yaml
+    - mosquitto-service.yaml
+    - nginx-deployment.yaml
+    - nginx-expose.yaml
+    - nginx-service.yaml
+    - node-exporter-deployment.yaml
+    - node-exporter-expose.yaml
+    - node-exporter-service.yaml
+    - postgres-deployment.yaml
+    - postgres-exporter-deployment.yaml
+    - postgres-exporter-expose.yaml
+    - postgres-exporter-service.yaml
+    - postgres-expose.yaml
+    - postgres-postgres_data-persistentVolumeClaim.yaml
+    - postgres-service.yaml
+    - prometheus-deployment.yaml
+    - prometheus-expose.yaml
+    - prometheus-prometheus_data-persistentVolumeClaim.yaml
+    - prometheus-service.yaml
+    - redis-commander-deployment.yaml
+    - redis-commander-expose.yaml
+    - redis-commander-service.yaml
+    - redis-deployment.yaml
+    - redis-exporter-deployment.yaml
+    - redis-exporter-expose.yaml
+    - redis-exporter-service.yaml
+    - redis-expose.yaml
+    - redis-redis_data-persistentVolumeClaim.yaml
+    - redis-service.yaml

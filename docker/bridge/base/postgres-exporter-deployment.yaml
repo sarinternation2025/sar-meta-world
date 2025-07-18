@@ -1,0 +1,36 @@
+#! postgres-exporter-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: postgres-exporter
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: postgres-exporter
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: postgres-exporter
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: postgres-exporter
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: postgres-exporter
+                  image: prometheuscommunity/postgres-exporter:v0.14.0
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: DATA_SOURCE_NAME
+                      value: "postgresql://postgres:postgres123@postgres:5432/chatapp?sslmode=disable"
+                  ports:
+                    - name: postgres-e-9187
+                      containerPort: 9187

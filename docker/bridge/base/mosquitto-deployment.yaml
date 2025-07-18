@@ -1,0 +1,74 @@
+#! mosquitto-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mosquitto
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: mosquitto
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: mosquitto
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: mosquitto
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: mosquitto-mqtt
+                  image: eclipse-mosquitto:2.0
+                  imagePullPolicy: IfNotPresent
+                  livenessProbe:
+                    exec:
+                        command: [mosquitto_sub -t $SYS/# -C 1]
+                    periodSeconds: 30
+                    timeoutSeconds: 10
+                    failureThreshold: 5
+                  ports:
+                    - name: mosquitto-1883
+                      containerPort: 1883
+                    - name: mosquitto-9001
+                      containerPort: 9001
+                  volumeMounts:
+                    - name: mosquitto-data
+                      mountPath: /mosquitto/data
+                    - name: mosquitto-log
+                      mountPath: /mosquitto/log
+                    - name: mosquitto-config-mosquitto-conf
+                      mountPath: /mosquitto/config/mosquitto.conf
+                      readOnly: true
+                    - name: mosquitto-config-passwd
+                      mountPath: /mosquitto/config/passwd
+                      readOnly: true
+                    - name: mosquitto-config-acl-conf
+                      mountPath: /mosquitto/config/acl.conf
+                      readOnly: true
+            volumes:
+                - name: mosquitto-data
+                  persistentVolumeClaim:
+                    claimName: mosquitto-mosquitto-data
+                - name: mosquitto-log
+                  persistentVolumeClaim:
+                    claimName: mosquitto-mosquitto-logs
+                - name: mosquitto-config-mosquitto-conf
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/mosquitto/mosquitto.conf
+                  readOnly: true
+                - name: mosquitto-config-passwd
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/mosquitto/passwd
+                  readOnly: true
+                - name: mosquitto-config-acl-conf
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/mosquitto/acl.conf
+                  readOnly: true

@@ -1,0 +1,57 @@
+#! node-exporter-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: node-exporter
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: node-exporter
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: node-exporter
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: node-exporter
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: node-exporter
+                  image: prom/node-exporter:v1.6.1
+                  imagePullPolicy: IfNotPresent
+                  command: [--path.procfs=/host/proc --path.rootfs=/rootfs --path.sysfs=/host/sys --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($|/)]
+                  ports:
+                    - name: node-expor-9100
+                      containerPort: 9100
+                  volumeMounts:
+                    - name: host-proc
+                      mountPath: /host/proc
+                      readOnly: true
+                    - name: host-sys
+                      mountPath: /host/sys
+                      readOnly: true
+                    - name: rootfs
+                      mountPath: /rootfs
+                      readOnly: true
+            volumes:
+                - name: host-proc
+                  hostPath:
+                    path: /proc
+                  readOnly: true
+                - name: host-sys
+                  hostPath:
+                    path: /sys
+                  readOnly: true
+                - name: rootfs
+                  hostPath:
+                    path: /
+                  readOnly: true

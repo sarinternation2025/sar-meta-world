@@ -1,0 +1,61 @@
+#! prometheus-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: prometheus
+    namespace: docker
+    labels:
+        com.docker.compose.project: docker
+        com.docker.compose.service: prometheus
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: docker
+            com.docker.compose.service: prometheus
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: docker
+                com.docker.compose.service: prometheus
+                com.docker.compose.network.backend: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: prometheus-metrics
+                  image: prom/prometheus:v2.47.0
+                  imagePullPolicy: IfNotPresent
+                  command: [--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/etc/prometheus/console_libraries --web.console.templates=/etc/prometheus/consoles --storage.tsdb.retention.time=200h --web.enable-lifecycle]
+                  livenessProbe:
+                    exec:
+                        command: ['wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy']
+                    periodSeconds: 30
+                    timeoutSeconds: 10
+                    failureThreshold: 5
+                  ports:
+                    - name: prometheus-9090
+                      containerPort: 9090
+                  volumeMounts:
+                    - name: prometheus
+                      mountPath: /prometheus
+                    - name: etc-prometheus-prometheus-yml
+                      mountPath: /etc/prometheus/prometheus.yml
+                      readOnly: true
+                    - name: etc-prometheus-rules
+                      mountPath: /etc/prometheus/rules
+                      readOnly: true
+            volumes:
+                - name: prometheus
+                  persistentVolumeClaim:
+                    claimName: prometheus-prometheus-data
+                - name: etc-prometheus-prometheus-yml
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/prometheus/prometheus.yml
+                  readOnly: true
+                - name: etc-prometheus-rules
+                  hostPath:
+                    path: /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/config/prometheus/rules
+                  readOnly: true
