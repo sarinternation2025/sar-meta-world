@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAR Meta World - Dev Sync Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #00ffff;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online {
+            background-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .status-offline {
+            background-color: #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+        }
+        
+        .panel h2 {
+            color: #00ffff;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .panel h2::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            background-size: contain;
+        }
+        
+        .build-stats h2::before {
+            content: '🔨';
+        }
+        
+        .server-status h2::before {
+            content: '🌐';
+        }
+        
+        .file-watcher h2::before {
+            content: '👁️';
+        }
+        
+        .activity-log h2::before {
+            content: '📋';
+        }
+        
+        .controls h2::before {
+            content: '🎛️';
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+        
+        .metric-value {
+            color: #00ffff;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .server-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        .server-item.offline {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.2);
+        }
+        
+        .server-name {
+            flex-grow: 1;
+            margin-left: 10px;
+            font-weight: 500;
+        }
+        
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        
+        .log-entry {
+            margin: 3px 0;
+            padding: 2px 0;
+        }
+        
+        .log-timestamp {
+            color: #888;
+            font-size: 0.8rem;
+            margin-right: 8px;
+        }
+        
+        .log-build-start { color: #ffaa00; }
+        .log-build-success { color: #00ff00; }
+        .log-build-error { color: #ff0000; }
+        .log-file-change { color: #00aaff; }
+        .log-sync { color: #ff00ff; }
+        
+        .button {
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            border-radius: 6px;
+            color: #00ffff;
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            background: rgba(0, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 255, 0.3);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 SAR Meta World Dev Sync Dashboard</h1>
+        <div>
+            <span id="connectionStatus" class="status-indicator status-offline"></span>
+            <span id="connectionText">Connecting...</span>
+        </div>
+    </div>
+    
+    <div class="dashboard">
+        <!-- Build Stats Panel -->
+        <div class="panel build-stats">
+            <h2>Build Statistics</h2>
+            <div class="metric">
+                <span class="metric-label">Total Builds</span>
+                <span class="metric-value" id="totalBuilds">0</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Successful</span>
+                <span class="metric-value" id="successfulBuilds">0</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Failed</span>
+                <span class="metric-value" id="failedBuilds">0</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Average Time</span>
+                <span class="metric-value" id="averageBuildTime">0ms</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Last Build</span>
+                <span class="metric-value" id="lastBuildStatus">-</span>
+            </div>
+            <div class="progress-bar" style="display: none;" id="buildProgress">
+                <div class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <!-- Server Status Panel -->
+        <div class="panel server-status">
+            <h2>Server Status</h2>
+            <div id="serverList">
+                <div class="server-item">
+                    <span class="status-indicator status-offline"></span>
+                    <span class="server-name">Loading servers...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- File Watcher Panel -->
+        <div class="panel file-watcher">
+            <h2>File Watcher</h2>
+            <div class="metric">
+                <span class="metric-label">Status</span>
+                <span class="metric-value" id="watcherStatus">Initializing</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Watched Files</span>
+                <span class="metric-value" id="watchedFiles">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Last Change</span>
+                <span class="metric-value" id="lastFileChange">-</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Queue Length</span>
+                <span class="metric-value" id="buildQueue">0</span>
+            </div>
+        </div>
+        
+        <!-- Controls Panel -->
+        <div class="panel controls">
+            <h2>Development Controls</h2>
+            <button class="button" onclick="forceBuild()">🔨 Force Build</button>
+            <button class="button" onclick="restartServer('api')">🔄 Restart API</button>
+            <button class="button" onclick="restartServer('static')">🔄 Restart Static</button>
+            <button class="button" onclick="clearLogs()">🗑️ Clear Logs</button>
+            <button class="button" onclick="refreshBrowser()">🔃 Refresh Browser</button>
+            <button class="button" onclick="openApp()">🌐 Open App</button>
+        </div>
+        
+        <!-- Activity Log Panel -->
+        <div class="panel activity-log">
+            <h2>Activity Log</h2>
+            <div class="log-container" id="activityLog">
+                <div class="log-entry">
+                    <span class="log-timestamp">[--:--:--]</span>
+                    <span>Waiting for connection...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Info Panel -->
+        <div class="panel">
+            <h2>🔧 System Information</h2>
+            <div class="metric">
+                <span class="metric-label">Node.js</span>
+                <span class="metric-value">v22.17.1</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Vite</span>
+                <span class="metric-value">v7.0.5</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">WebSocket</span>
+                <span class="metric-value" id="wsStatus">Connecting</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Auto-Sync</span>
+                <span class="metric-value">🟢 Enabled</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 10;
+        const reconnectDelay = 2000;
+        
+        function connectWebSocket() {
+            try {
+                ws = new WebSocket('ws://localhost:9999');
+                
+                ws.onopen = function() {
+                    console.log('✅ WebSocket connected');
+                    document.getElementById('connectionStatus').className = 'status-indicator status-online';
+                    document.getElementById('connectionText').textContent = 'Connected';
+                    document.getElementById('wsStatus').textContent = '🟢 Connected';
+                    reconnectAttempts = 0;
+                    addLogEntry('Connection established', 'log-sync');
+                };
+                
+                ws.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                };
+                
+                ws.onclose = function() {
+                    console.log('❌ WebSocket disconnected');
+                    document.getElementById('connectionStatus').className = 'status-indicator status-offline';
+                    document.getElementById('connectionText').textContent = 'Disconnected';
+                    document.getElementById('wsStatus').textContent = '🔴 Disconnected';
+                    addLogEntry('Connection lost', 'log-build-error');
+                    
+                    // Attempt reconnection
+                    if (reconnectAttempts < maxReconnectAttempts) {
+                        reconnectAttempts++;
+                        setTimeout(() => {
+                            console.log(`🔄 Reconnection attempt ${reconnectAttempts}`);
+                            connectWebSocket();
+                        }, reconnectDelay);
+                    }
+                };
+                
+                ws.onerror = function(error) {
+                    console.error('❌ WebSocket error:', error);
+                    addLogEntry('Connection error', 'log-build-error');
+                };
+                
+            } catch (error) {
+                console.error('Failed to connect:', error);
+                addLogEntry('Failed to connect to dev server', 'log-build-error');
+            }
+        }
+        
+        function handleMessage(data) {
+            console.log('📨 Received:', data.type, data);
+            
+            switch (data.type) {
+                case 'init':
+                    updateBuildStats(data.stats);
+                    updateServerList(data.processes);
+                    addLogEntry('Dev Sync Manager initialized', 'log-sync');
+                    break;
+                    
+                case 'build-start':
+                    document.getElementById('lastBuildStatus').textContent = 'Building...';
+                    document.getElementById('buildProgress').style.display = 'block';
+                    addLogEntry(`Build started (${data.trigger})`, 'log-build-start');
+                    break;
+                    
+                case 'build-success':
+                    updateBuildStats(data.stats);
+                    document.getElementById('lastBuildStatus').textContent = `✅ ${data.duration}ms`;
+                    document.getElementById('buildProgress').style.display = 'none';
+                    addLogEntry(`Build completed in ${data.duration}ms`, 'log-build-success');
+                    break;
+                    
+                case 'build-error':
+                    updateBuildStats(data.stats);
+                    document.getElementById('lastBuildStatus').textContent = '❌ Failed';
+                    document.getElementById('buildProgress').style.display = 'none';
+                    addLogEntry(`Build failed: ${data.error}`, 'log-build-error');
+                    break;
+                    
+                case 'file-change':
+                    document.getElementById('lastFileChange').textContent = data.path.split('/').pop();
+                    addLogEntry(`File ${data.event}: ${data.path}`, 'log-file-change');
+                    break;
+                    
+                case 'sync-start':
+                    addLogEntry('Auto-sync started', 'log-sync');
+                    break;
+                    
+                case 'sync-success':
+                    addLogEntry('Auto-sync completed', 'log-sync');
+                    break;
+                    
+                case 'refresh-browser':
+                    addLogEntry('Browser refresh triggered', 'log-sync');
+                    // Auto-refresh current tab if it's the app
+                    if (window.location.href.includes('dev-dashboard')) {
+                        // Don't refresh dashboard
+                    } else {
+                        setTimeout(() => window.location.reload(), 1000);
+                    }
+                    break;
+                    
+                case 'server-start':
+                    addLogEntry(`${data.server} server started`, 'log-sync');
+                    break;
+                    
+                case 'status-update':
+                    updateBuildStats(data.buildStats);
+                    updateServerList(data.processes);
+                    document.getElementById('buildQueue').textContent = data.queueLength;
+                    break;
+            }
+        }
+        
+        function updateBuildStats(stats) {
+            if (!stats) return;
+            
+            document.getElementById('totalBuilds').textContent = stats.total;
+            document.getElementById('successfulBuilds').textContent = stats.successful;
+            document.getElementById('failedBuilds').textContent = stats.failed;
+            document.getElementById('averageBuildTime').textContent = Math.round(stats.avgTime) + 'ms';
+        }
+        
+        function updateServerList(processes) {
+            if (!processes) return;
+            
+            const serverList = document.getElementById('serverList');
+            const servers = ['api', 'static', 'dev'];
+            
+            serverList.innerHTML = '';
+            
+            servers.forEach(server => {
+                const isOnline = processes.includes(server);
+                const serverItem = document.createElement('div');
+                serverItem.className = `server-item ${isOnline ? '' : 'offline'}`;
+                serverItem.innerHTML = `
+                    <span class="status-indicator ${isOnline ? 'status-online' : 'status-offline'}"></span>
+                    <span class="server-name">${server.charAt(0).toUpperCase() + server.slice(1)} Server</span>
+                    <span class="metric-value">${isOnline ? '🟢 Online' : '🔴 Offline'}</span>
+                `;
+                serverList.appendChild(serverItem);
+            });
+        }
+        
+        function addLogEntry(message, className = '') {
+            const logContainer = document.getElementById('activityLog');
+            const logEntry = document.createElement('div');
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString();
+            
+            logEntry.className = `log-entry ${className}`;
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span>${message}</span>
+            `;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Keep only last 100 entries
+            while (logContainer.children.length > 100) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+        
+        function sendMessage(message) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
+            } else {
+                addLogEntry('Cannot send message: not connected', 'log-build-error');
+            }
+        }
+        
+        function forceBuild() {
+            sendMessage({ type: 'force-build' });
+            addLogEntry('Manual build requested', 'log-build-start');
+        }
+        
+        function restartServer(serverName) {
+            sendMessage({ type: 'restart-server', server: serverName });
+            addLogEntry(`${serverName} server restart requested`, 'log-sync');
+        }
+        
+        function clearLogs() {
+            document.getElementById('activityLog').innerHTML = '';
+            addLogEntry('Logs cleared', 'log-sync');
+        }
+        
+        function refreshBrowser() {
+            sendMessage({ type: 'refresh-browser' });
+            addLogEntry('Browser refresh requested', 'log-sync');
+        }
+        
+        function openApp() {
+            window.open('http://localhost:8080', '_blank');
+            addLogEntry('App opened in new tab', 'log-sync');
+        }
+        
+        // Initialize connection
+        connectWebSocket();
+        
+        // Request status update every 5 seconds
+        setInterval(() => {
+            sendMessage({ type: 'get-status' });
+        }, 5000);
+        
+        // Update watcher status
+        document.getElementById('watcherStatus').textContent = '🟢 Active';
+        document.getElementById('watchedFiles').textContent = 'src/**/*';
+    </script>
+</body>
+</html>

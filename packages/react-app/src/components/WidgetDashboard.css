@@ -1,0 +1,247 @@
+/* Widget Dashboard styling */
+.widget-dashboard {
+  position: relative;
+  padding: 20px;
+  background: rgba(0, 0, 17, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, auto);
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reset-btn {
+  background: #005522;
+  color: #ffffff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  transition: background 0.3s ease;
+}
+
+.reset-btn:hover {
+  background: #008844;
+}
+
+.widget-toggles {
+  display: flex;
+  gap: 8px;
+}
+
+.toggle-btn {
+  background: none;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+
+.toggle-btn.active {
+  background: rgba(0, 255, 255, 0.2);
+}
+
+.toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+.widget-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.widget {
+  position: relative;
+  background: rgba(30, 30, 30, 0.5);
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  border: 2px solid #444444;
+  transition: transform 0.3s ease;
+  animation: fadeIn 0.5s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.widget-icon {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.widget-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.widget-close {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.widget-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.widget-content {
+  flex: 1;
+  padding: 10px;
+  font-size: 12px;
+  color: #dddddd;
+}
+
+/* Specific widget styling */
+.metrics-widget .metric-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.metrics-widget .metric-label {
+  color: #ffffff;
+}
+
+.metrics-widget .metric-value {
+  font-weight: bold;
+  color: #00ff00;
+}
+
+.network-widget .network-status {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #00ff00;
+  margin-right: 8px;
+  box-shadow: 0 0 5px #00ff00;
+}
+
+.network-widget .network-stats .stat {
+  padding: 5px 0;
+}
+
+.alerts-widget .alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  font-size: 13px;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+.alerts-widget .alert.warning {
+  background: rgba(255, 165, 0, 0.1);
+  color: #ffaa00;
+}
+
+.alerts-widget .alert.error {
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff4444;
+}
+
+.alerts-widget .alert.info {
+  background: rgba(0, 0, 255, 0.1);
+  color: #0088ff;
+}
+
+.alerts-widget .alert.success {
+  background: rgba(0, 255, 0, 0.1);
+  color: #00ff00;
+}
+
+.performance-widget .perf-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.performance-widget .perf-bar {
+  background: #222222;
+  border-radius: 5px;
+  overflow: hidden;
+  flex: 1;
+  height: 12px;
+  margin: 0 5px;
+}
+
+.performance-widget .perf-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.logs-widget .logs-container {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.logs-widget .log-entry {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+
+.logs-widget .log-entry .log-time {
+  min-width: 60px;
+  font-weight: bold;
+  color: #aaa;
+}
+
+.logs-widget .log-entry .log-type {
+  min-width: 50px;
+  font-weight: bold;
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dragging {
+  cursor: move;
+}
+

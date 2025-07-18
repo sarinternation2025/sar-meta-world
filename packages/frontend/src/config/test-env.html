@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Security Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .warning { border-left: 4px solid #ffc107; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Environment Security Test</h1>
+        <div id="test-results"></div>
+    </div>
+
+    <script type="module">
+        import { config } from './index.js';
+
+        const resultsDiv = document.getElementById('test-results');
+        
+        function addTestResult(title, content, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `test-section ${type}`;
+            div.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${content}</pre>
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        // Test 1: Check available variables
+        const availableVars = Object.keys(import.meta.env);
+        addTestResult('1. Available Environment Variables', `Keys: ${availableVars.join(', ')}`);
+
+        // Test 2: Check VITE_* variables only
+        const viteVars = availableVars.filter(key => key.startsWith('VITE_'));
+        const nonViteVars = availableVars.filter(key => 
+            !key.startsWith('VITE_') && 
+            !['BASE_URL', 'MODE', 'DEV', 'PROD', 'SSR'].includes(key)
+        );
+        
+        addTestResult('2. VITE_* Variables', `✅ VITE_* variables: ${viteVars.join(', ')}`);
+        if (nonViteVars.length > 0) {
+            addTestResult('2.1 Non-VITE Variables', `⚠️ Non-VITE variables: ${nonViteVars.join(', ')}`, 'warning');
+        }
+
+        // Test 3: Check for sensitive variables
+        const sensitiveVars = ['DATABASE_URL', 'JWT_SECRET', 'OPENAI_API_KEY', 'CLAUDE_API_KEY', 'SESSION_SECRET'];
+        const exposedSensitiveVars = sensitiveVars.filter(varName => import.meta.env[varName] !== undefined);
+        
+        if (exposedSensitiveVars.length > 0) {
+            addTestResult('3. Sensitive Variables Check', `❌ SECURITY ISSUE: Sensitive variables exposed: ${exposedSensitiveVars.join(', ')}`, 'error');
+        } else {
+            addTestResult('3. Sensitive Variables Check', '✅ No sensitive variables exposed');
+        }
+
+        // Test 4: Configuration validation
+        try {
+            addTestResult('4. Configuration Validation', `✅ Configuration loaded successfully
+App name: ${config.app.name}
+API URL: ${config.api.url}
+Development mode: ${config.isDevelopment()}`);
+        } catch (error) {
+            addTestResult('4. Configuration Validation', `❌ Configuration validation failed: ${error.message}`, 'error');
+        }
+
+        // Test 5: Required variables
+        const requiredVars = [
+            'VITE_API_URL',
+            'VITE_API_VERSION', 
+            'VITE_APP_NAME',
+            'VITE_APP_VERSION',
+            'VITE_SOCKET_URL'
+        ];
+        
+        const missingVars = requiredVars.filter(varName => !import.meta.env[varName]);
+        if (missingVars.length > 0) {
+            addTestResult('5. Required Variables', `❌ Missing required variables: ${missingVars.join(', ')}`, 'error');
+        } else {
+            addTestResult('5. Required Variables', '✅ All required variables present');
+        }
+
+        // Test 6: Environment-specific behavior
+        addTestResult('6. Environment Info', `Mode: ${import.meta.env.MODE}
+Is Development: ${import.meta.env.DEV}
+Is Production: ${import.meta.env.PROD}
+Base URL: ${import.meta.env.BASE_URL}`);
+
+        // Test 7: Display all VITE_ variables with their values
+        const viteVarValues = viteVars.map(key => `${key}: ${import.meta.env[key]}`).join('\n');
+        addTestResult('7. VITE_* Variable Values', viteVarValues);
+
+        console.log('🔒 Environment Security Test Complete');
+    </script>
+</body>
+</html>

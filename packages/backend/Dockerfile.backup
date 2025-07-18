@@ -1,0 +1,29 @@
+# Minimal backup service
+FROM postgres:15-alpine
+
+WORKDIR /app
+
+# Create backup script
+RUN cat > backup-script.sh << 'EOF'
+#!/bin/sh
+set -e
+
+echo "Starting backup process at $(date)"
+
+# PostgreSQL backup
+if [ -n "$POSTGRES_HOST" ]; then
+    echo "Backing up PostgreSQL database..."
+    PGPASSWORD=$POSTGRES_PASSWORD pg_dump -h $POSTGRES_HOST -U $POSTGRES_USER -d $POSTGRES_DB > /backups/postgres_$(date +%Y%m%d_%H%M%S).sql
+fi
+
+echo "Backup process completed at $(date)"
+EOF
+
+# Make backup script executable
+RUN chmod +x backup-script.sh
+
+# Create backup directory
+RUN mkdir -p /backups
+
+# Default command runs backup on schedule
+CMD ["sh", "-c", "while true; do ./backup-script.sh; sleep ${BACKUP_INTERVAL:-86400}; done"]

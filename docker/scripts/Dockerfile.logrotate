@@ -1,0 +1,62 @@
+FROM alpine:3.18
+
+# Install required packages
+RUN apk add --no-cache \
+    bash \
+    curl \
+    logrotate \
+    docker-cli \
+    findutils \
+    coreutils \
+    gzip \
+    tar \
+    cronie \
+    tzdata
+
+# Set timezone
+ENV TZ=UTC
+
+# Create logrotate user
+RUN adduser -D -s /bin/bash logrotate
+
+# Create directories
+RUN mkdir -p /var/log/app /scripts /var/lib/logrotate
+RUN chown logrotate:logrotate /var/log/app /var/lib/logrotate
+
+# Copy log rotation scripts
+COPY log_rotation.sh /scripts/
+COPY ../logrotate.conf /etc/logrotate.conf
+
+# Make scripts executable
+RUN chmod +x /scripts/*.sh
+
+# Install cron job
+RUN echo "0 1 * * * /scripts/log_rotation.sh" | crontab -u logrotate -
+
+# Create entrypoint script
+RUN cat > /entrypoint.sh << 'EOF'
+#!/bin/bash
+set -e
+
+# Start cron daemon
+crond -l 2 -f &
+
+# Keep container running
+exec "$@"
+EOF
+
+RUN chmod +x /entrypoint.sh
+
+# Switch to logrotate user
+USER logrotate
+
+# Set working directory
+WORKDIR /var/log/app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD pgrep crond || exit 1
+
+# Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["tail", "-f", "/var/log/log_rotation.log"]

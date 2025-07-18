@@ -1,0 +1,7 @@
+# Backup databases daily at 2 AM
+0 2 * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/backup.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/backup.log 2>&1
+
+# Rotate logs weekly
+data_logs_rotation_script_path="/Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logrotate.conf"
+find /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs -type f | xargs logrotate --state /var/lib/logrotate/state -v
+

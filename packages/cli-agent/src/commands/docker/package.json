@@ -1,0 +1,38 @@
+{
+  "name": "@sar-cli/docker",
+  "version": "1.0.0",
+  "description": "SAR CLI Docker Commands - Container management, image building, and Docker Compose orchestration",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "sar-cli",
+    "docker",
+    "containers",
+    "images",
+    "compose",
+    "orchestration"
+  ],
+  "author": "SAR International",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.0.0",
+    "chalk": "^5.3.0",
+    "inquirer": "^9.2.0",
+    "ora": "^7.0.0",
+    "fs-extra": "^11.2.0",
+    "dockerode": "^4.0.0",
+    "listr2": "^6.6.0",
+    "yaml": "^2.3.0"
+  },
+  "peerDependencies": {
+    "sar-cli": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

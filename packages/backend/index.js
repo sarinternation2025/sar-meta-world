@@ -14,53 +14,103 @@ const fs = require('fs-extra');
 const path = require('path');
 const winston = require('winston');
 const cron = require('node-cron');
+const rateLimit = require('express-rate-limit');
+
+// Load environment configuration
+const config = require('./config/env');
 
 // Initialize Express app
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: config.CORS_ORIGIN,
   },
 });
-const docker = new Docker();
+const docker = new Docker({
+  socketPath: config.DOCKER_SOCKET_PATH
+});
 
 // MQTT Client setup
-const mqttClient = mqtt.connect('mqtt://localhost:1883');
+const mqttOptions = {
+  clientId: config.MQTT_CLIENT_ID,
+  keepalive: 60,
+  reconnectPeriod: 1000,
+  clean: true,
+  connectTimeout: 30000,
+};
+
+if (config.MQTT_USERNAME) {
+  mqttOptions.username = config.MQTT_USERNAME;
+  mqttOptions.password = config.MQTT_PASSWORD;
+}
+
+const mqttClient = mqtt.connect(config.MQTT_BROKER_URL, mqttOptions);
 
 // Logger setup
 const logger = winston.createLogger({
-  level: 'info',
+  level: config.LOG_LEVEL,
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.json()
   ),
   transports: [
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' }),
+    new winston.transports.File({ 
+      filename: path.join(config.LOG_FILE_PATH, 'error.log'), 
+      level: 'error',
+      maxsize: config.LOG_MAX_SIZE,
+      maxFiles: config.LOG_MAX_FILES
+    }),
+    new winston.transports.File({ 
+      filename: path.join(config.LOG_FILE_PATH, 'combined.log'),
+      maxsize: config.LOG_MAX_SIZE,
+      maxFiles: config.LOG_MAX_FILES
+    }),
     new winston.transports.Console()
   ],
 });
 
-// Configuration storage
-let config = {
+// Configuration storage (runtime config that can be updated)
+let runtimeConfig = {
   monitoring: {
-    refreshInterval: 5000,
-    autoRefresh: true,
+    refreshInterval: config.MONITORING_REFRESH_INTERVAL,
+    autoRefresh: config.MONITORING_AUTO_REFRESH,
     alertThresholds: {
-      cpu: 80,
-      memory: 85,
-      disk: 90
+      cpu: config.ALERT_CPU_THRESHOLD,
+      memory: config.ALERT_MEMORY_THRESHOLD,
+      disk: config.ALERT_DISK_THRESHOLD
     }
   }
 };
 
 // Initialize metrics aggregator
-const metricsAggregator = new MetricsAggregator();
+const metricsAggregator = new MetricsAggregator({
+  bufferSize: config.METRICS_AGGREGATOR_BUFFER_SIZE,
+  cleanupInterval: config.METRICS_AGGREGATOR_CLEANUP_INTERVAL
+});
+
+// Rate limiting middleware
+if (config.RATE_LIMIT_ENABLED) {
+  const limiter = rateLimit({
+    windowMs: config.RATE_LIMIT_WINDOW_MS,
+    max: config.RATE_LIMIT_MAX_REQUESTS,
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.use('/api/', limiter);
+}
 
 // Middleware
-app.use(cors());
-app.use(helmet());
+app.use(cors({
+  origin: config.CORS_ORIGIN,
+  credentials: true
+}));
+
+if (config.HELMET_ENABLED) {
+  app.use(helmet());
+}
+
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -132,6 +182,15 @@ const getServiceStatus = async () => {
 };
 
 // API Endpoints
+// Simple health check endpoint for Docker/systemd
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    uptime: process.uptime(),
+    timestamp: Date.now()
+  });
+});
+
 app.get('/api/monitoring/health', (req, res) => {
   res.json({
     success: true,
@@ -225,7 +284,7 @@ app.get('/api/monitoring/alerts', async (req, res) => {
 app.get('/api/monitoring/config', (req, res) => {
   res.json({
     success: true,
-    data: config,
+    data: runtimeConfig,
     timestamp: Date.now()
   });
 });
@@ -234,12 +293,12 @@ app.put('/api/monitoring/config', (req, res) => {
   try {
     const { config: newConfig } = req.body;
     if (newConfig) {
-      config = { ...config, ...newConfig };
-      logger.info('Configuration updated:', config);
+      runtimeConfig = { ...runtimeConfig, ...newConfig };
+      logger.info('Configuration updated:', runtimeConfig);
     }
     res.json({
       success: true,
-      data: config,
+      data: runtimeConfig,
       message: 'Configuration updated successfully',
       timestamp: Date.now()
     });
@@ -491,15 +550,15 @@ io.on('connection', (socket) => {
   sendData();
   
   // Set up interval for regular updates
-  const interval = setInterval(sendData, config.monitoring.refreshInterval);
+  const interval = setInterval(sendData, runtimeConfig.monitoring.refreshInterval);
   
   // Handle client requests
   socket.on('get-metrics', sendData);
   
   socket.on('update-config', (newConfig) => {
-    config = { ...config, ...newConfig };
-    logger.info('Configuration updated via WebSocket:', config);
-    socket.emit('config-updated', config);
+    runtimeConfig = { ...runtimeConfig, ...newConfig };
+    logger.info('Configuration updated via WebSocket:', runtimeConfig);
+    socket.emit('config-updated', runtimeConfig);
   });
   
   socket.on('disconnect', () => {
@@ -517,7 +576,7 @@ cron.schedule('0 */6 * * *', async () => {
       cpu: metrics.cpu.usage,
       memory: metrics.memory.percentage,
       disk: metrics.disk.percentage
-    });
+    }, runtimeConfig.monitoring.alertThresholds);
     
     if (alerts.length > 0) {
       logger.warn('Scheduled check found alerts:', alerts);
@@ -529,13 +588,15 @@ cron.schedule('0 */6 * * *', async () => {
 });
 
 // Create logs directory if it doesn't exist
-fs.ensureDirSync(path.join(__dirname, 'logs'));
+fs.ensureDirSync(path.join(__dirname, config.LOG_FILE_PATH));
 
 // Start server
-server.listen(3001, () => {
-  logger.info('Server listening on port 3001');
-  console.log('🚀 SAR-META-WORLD Backend API started on port 3001');
-  console.log('📊 Real-time monitoring active');
+server.listen(config.PORT, config.HOST, () => {
+  logger.info(`Server listening on ${config.HOST}:${config.PORT}`);
+  console.log(`🚀 SAR-META-WORLD Backend API started on ${config.HOST}:${config.PORT}`);
+  console.log(`📊 Real-time monitoring active (${config.NODE_ENV} mode)`);
   console.log('🔌 WebSocket server ready');
-  console.log('📡 MQTT integration enabled');
+  console.log(`📡 MQTT integration enabled (${config.MQTT_BROKER_URL})`);
+  console.log(`🔒 Security: ${config.HELMET_ENABLED ? 'Enabled' : 'Disabled'}`);
+  console.log(`⚡ Rate limiting: ${config.RATE_LIMIT_ENABLED ? 'Enabled' : 'Disabled'}`);
 });

@@ -23,7 +23,4 @@ export default defineConfig({
       '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
     }
   },
-  define: {
-    'process.env': process.env
-  }
 })

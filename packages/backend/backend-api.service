@@ -1,0 +1,59 @@
+[Unit]
+Description=Backend API Service
+Documentation=https://github.com/your-repo
+After=network.target postgresql.service redis.service
+Wants=postgresql.service redis.service
+
+[Service]
+Type=notify
+User=nodejs
+Group=nodejs
+WorkingDirectory=/opt/backend-api
+ExecStart=/usr/bin/pm2 start ecosystem.config.js --no-daemon
+ExecStop=/usr/bin/pm2 stop ecosystem.config.js
+ExecReload=/usr/bin/pm2 reload ecosystem.config.js
+KillMode=process
+Restart=always
+RestartSec=10s
+TimeoutStartSec=60s
+TimeoutStopSec=30s
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/backend-api/logs
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+SystemCallArchitectures=native
+
+# Resource limits
+LimitNOFILE=65535
+LimitNPROC=4096
+MemoryLimit=1G
+CPUQuota=200%
+
+# Environment variables
+Environment=NODE_ENV=production
+Environment=PORT=3001
+Environment=POSTGRES_HOST=localhost
+Environment=POSTGRES_PORT=5432
+Environment=REDIS_HOST=localhost
+Environment=REDIS_PORT=6379
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=backend-api
+
+[Install]
+WantedBy=multi-user.target

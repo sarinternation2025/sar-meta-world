@@ -1,0 +1,91 @@
+# Cron Schedule Configuration for Meta-World Application
+# This file contains all scheduled tasks for backup and log rotation
+
+# Environment variables
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SHELL=/bin/bash
+MAILTO=admin@your-domain.com
+
+# Backup tasks
+# =============
+
+# Daily database backup at 2:00 AM
+0 2 * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/enhanced_backup.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/backup.log 2>&1
+
+# Weekly full system backup at 3:00 AM on Sundays
+0 3 * * 0 /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/enhanced_backup.sh --full >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/backup.log 2>&1
+
+# Monthly backup verification at 4:00 AM on the 1st of each month
+0 4 1 * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/backup_verification.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/backup_verification.log 2>&1
+
+# Log rotation tasks
+# ==================
+
+# Daily log rotation at 1:00 AM
+0 1 * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/log_rotation.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/log_rotation.log 2>&1
+
+# Hourly log cleanup for rapidly growing logs
+0 * * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/emergency_log_cleanup.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/emergency_cleanup.log 2>&1
+
+# Weekly log analysis and reporting at 5:00 AM on Mondays
+0 5 * * 1 /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/log_analysis.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/log_analysis.log 2>&1
+
+# System maintenance tasks
+# ========================
+
+# Daily system health check at 6:00 AM
+0 6 * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/system_health_check.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/health_check.log 2>&1
+
+# Weekly Docker cleanup at 7:00 AM on Saturdays
+0 7 * * 6 /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/docker_cleanup.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/docker_cleanup.log 2>&1
+
+# Monthly disk usage report at 8:00 AM on the 1st of each month
+0 8 1 * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/disk_usage_report.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/disk_usage.log 2>&1
+
+# Security and monitoring tasks
+# =============================
+
+# Daily security check at 9:00 AM
+0 9 * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/security_check.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/security_check.log 2>&1
+
+# Hourly monitoring data collection
+0 * * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/collect_metrics.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/metrics_collection.log 2>&1
+
+# Daily performance report at 10:00 AM
+0 10 * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/performance_report.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/performance_report.log 2>&1
+
+# Database maintenance tasks
+# ==========================
+
+# Weekly PostgreSQL VACUUM at 11:00 PM on Sundays
+0 23 * * 0 /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/postgres_maintenance.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/postgres_maintenance.log 2>&1
+
+# Daily Redis memory optimization at 12:00 AM
+0 0 * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/redis_optimization.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/redis_optimization.log 2>&1
+
+# Weekly InfluxDB compaction at 1:00 AM on Mondays
+0 1 * * 1 /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/influxdb_maintenance.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/influxdb_maintenance.log 2>&1
+
+# Notification and reporting tasks
+# ================================
+
+# Daily status report at 7:00 AM
+0 7 * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/daily_report.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/daily_report.log 2>&1
+
+# Weekly summary report at 8:00 AM on Mondays
+0 8 * * 1 /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/weekly_report.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/weekly_report.log 2>&1
+
+# Monthly comprehensive report at 9:00 AM on the 1st of each month
+0 9 1 * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/monthly_report.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/monthly_report.log 2>&1
+
+# Emergency tasks
+# ===============
+
+# Every 5 minutes check for critical issues
+*/5 * * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/critical_check.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/critical_check.log 2>&1
+
+# Every 15 minutes check disk space
+*/15 * * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/disk_space_check.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/disk_space_check.log 2>&1
+
+# Every 30 minutes check service health
+*/30 * * * * /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/scripts/service_health_check.sh >> /Users/sar-international/Desktop/meta-world/sar-meta-world/docker/logs/service_health_check.log 2>&1

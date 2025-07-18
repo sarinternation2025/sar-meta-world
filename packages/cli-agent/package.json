@@ -1,0 +1,67 @@
+{
+  "name": "sar-cli",
+  "version": "1.0.0",
+  "description": "SAR Meta World CLI Agent - A comprehensive command-line interface for managing SAR projects, deployments, monitoring, and development workflows",
+  "main": "src/index.js",
+  "bin": {
+    "sar-cli": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "dev": "nodemon bin/cli.js",
+    "test": "jest",
+    "lint": "eslint src/ bin/",
+    "format": "prettier --write src/ bin/"
+  },
+  "keywords": [
+    "cli",
+    "sar",
+    "meta-world",
+    "deployment",
+    "monitoring",
+    "development",
+    "project-management"
+  ],
+  "author": "SAR International",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.0.0",
+    "chalk": "^4.1.2",
+    "inquirer": "^9.2.0",
+    "ora": "^7.0.0",
+    "fs-extra": "^11.2.0",
+    "axios": "^1.5.0",
+    "dotenv": "^16.3.0",
+    "figlet": "^1.7.0",
+    "boxen": "^5.1.0",
+    "cli-table3": "^0.6.3",
+    "listr2": "^6.6.0",
+    "semver": "^7.5.0",
+    "yaml": "^2.3.0",
+    "glob": "^10.3.0",
+    "rimraf": "^5.0.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.0",
+    "node-cron": "^3.0.3",
+    "ws": "^8.14.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.50.0",
+    "prettier": "^3.0.0",
+    "nodemon": "^3.0.2",
+    "@types/node": "^20.8.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sar-international/sar-meta-world.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sar-international/sar-meta-world/issues"
+  },
+  "homepage": "https://github.com/sar-international/sar-meta-world#readme"
+}

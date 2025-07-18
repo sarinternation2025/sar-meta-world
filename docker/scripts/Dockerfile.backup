@@ -1,0 +1,67 @@
+FROM alpine:3.18
+
+# Install required packages
+RUN apk add --no-cache \
+    bash \
+    curl \
+    postgresql-client \
+    redis \
+    influxdb \
+    docker-cli \
+    aws-cli \
+    tar \
+    gzip \
+    findutils \
+    coreutils \
+    netcat-openbsd \
+    cronie \
+    tzdata
+
+# Set timezone
+ENV TZ=UTC
+
+# Create backup user
+RUN adduser -D -s /bin/bash backup
+
+# Create directories
+RUN mkdir -p /backups /var/log /scripts
+RUN chown backup:backup /backups /var/log
+
+# Copy backup scripts
+COPY enhanced_backup.sh /scripts/
+COPY backup_verification.sh /scripts/
+COPY emergency_log_cleanup.sh /scripts/
+
+# Make scripts executable
+RUN chmod +x /scripts/*.sh
+
+# Install cron job
+RUN echo "0 2 * * * /scripts/enhanced_backup.sh" | crontab -u backup -
+
+# Create entrypoint script
+RUN cat > /entrypoint.sh << 'EOF'
+#!/bin/bash
+set -e
+
+# Start cron daemon
+crond -l 2 -f &
+
+# Keep container running
+exec "$@"
+EOF
+
+RUN chmod +x /entrypoint.sh
+
+# Switch to backup user
+USER backup
+
+# Set working directory
+WORKDIR /backups
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD pgrep crond || exit 1
+
+# Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["tail", "-f", "/var/log/backup.log"]

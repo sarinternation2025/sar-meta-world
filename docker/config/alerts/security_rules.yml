@@ -1,0 +1,152 @@
+groups:
+  - name: security_alerts
+    rules:
+      - alert: HighFailedLoginAttempts
+        expr: increase(failed_login_attempts_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "High number of failed login attempts detected"
+          description: "{{ $value }} failed login attempts in the last 5 minutes"
+          
+      - alert: UnauthorizedAccessAttempt
+        expr: increase(nginx_http_requests_total{status=~"401|403"}[5m]) > 20
+        for: 1m
+        labels:
+          severity: critical
+          category: security
+        annotations:
+          summary: "Unauthorized access attempts detected"
+          description: "{{ $value }} unauthorized access attempts in 5 minutes"
+          
+      - alert: DatabaseConnectionFailure
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "Database connection failure"
+          description: "PostgreSQL database is down"
+          
+      - alert: RedisConnectionFailure
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "Redis connection failure"
+          description: "Redis cache is down"
+          
+      - alert: InfluxDBConnectionFailure
+        expr: up{job="influxdb"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "InfluxDB connection failure"
+          description: "InfluxDB time series database is down"
+          
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for 5 minutes"
+          
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 80% for 5 minutes"
+          
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes{fstype!="tmpfs"} - node_filesystem_free_bytes{fstype!="tmpfs"}) / node_filesystem_size_bytes{fstype!="tmpfs"} > 0.85
+        for: 5m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "High disk usage detected"
+          description: "Disk usage is above 85% for 5 minutes"
+          
+      - alert: SSLCertificateExpiry
+        expr: (ssl_certificate_expiry_seconds - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate will expire in {{ $value }} days"
+          
+      - alert: ServiceDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: service
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.job }} service is down"
+          
+      - alert: DockerContainerDown
+        expr: docker_container_running_state == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: container
+        annotations:
+          summary: "Docker container is down"
+          description: "Container {{ $labels.name }} is not running"
+          
+      - alert: BackupFailure
+        expr: backup_last_success_timestamp + 86400 < time()
+        for: 1h
+        labels:
+          severity: warning
+          category: backup
+        annotations:
+          summary: "Backup failure detected"
+          description: "No successful backup in the last 24 hours"
+          
+      - alert: LogAnomalyDetected
+        expr: increase(log_errors_total[5m]) > 50
+        for: 2m
+        labels:
+          severity: warning
+          category: logs
+        annotations:
+          summary: "High error rate in logs"
+          description: "{{ $value }} errors detected in logs in 5 minutes"
+          
+      - alert: NetworkLatencyHigh
+        expr: avg_over_time(network_latency_seconds[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: "High network latency detected"
+          description: "Network latency is {{ $value }}s over 5 minutes"
+          
+      - alert: DatabaseSlowQuery
+        expr: postgres_slow_queries_total > 10
+        for: 1m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "{{ $value }} slow queries in PostgreSQL"

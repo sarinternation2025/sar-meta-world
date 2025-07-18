@@ -1,0 +1,210 @@
+# Production Security Configuration
+# This file contains enhanced security settings for production deployment
+
+version: '3.8'
+
+# Security-focused service extensions with enhanced protection
+x-security-hardened: &security-hardened
+  security_opt:
+    - no-new-privileges:true
+    - apparmor:docker-default
+    - seccomp:unconfined
+  cap_drop:
+    - ALL
+  cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - SETGID
+    - SETUID
+    - NET_BIND_SERVICE
+  read_only: true
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=100m
+    - /var/tmp:rw,noexec,nosuid,size=50m
+  user: "1000:1000"
+  ulimits:
+    nproc: 65535
+    nofile:
+      soft: 20000
+      hard: 40000
+
+x-logging-production: &logging-production
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "5"
+      labels: "service,version,environment"
+      env: "NODE_ENV,LOG_LEVEL"
+
+x-resource-limits-production: &resource-limits-production
+  deploy:
+    resources:
+      limits:
+        cpus: '1.0'
+        memory: 1G
+      reservations:
+        cpus: '0.5'
+        memory: 512M
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+      window: 120s
+
+# Enhanced health check configurations
+x-healthcheck-web-secure: &healthcheck-web-secure
+  healthcheck:
+    test: ["CMD", "curl", "-f", "--max-time", "5", "http://localhost:80/health"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 60s
+
+x-healthcheck-database-secure: &healthcheck-database-secure
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost"]
+    interval: 15s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+
+# Production network configurations with enhanced security
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/16
+          gateway: 172.21.0.1
+    driver_opts:
+      com.docker.network.bridge.name: docker-backend-prod
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+      com.docker.network.driver.mtu: "1500"
+      encrypted: "true"
+  
+  frontend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16
+          gateway: 172.22.0.1
+    driver_opts:
+      com.docker.network.bridge.name: docker-frontend-prod
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+      com.docker.network.driver.mtu: "1500"
+      encrypted: "true"
+
+# Secrets management for production
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+  postgres_replication_password:
+    file: ./secrets/postgres_replication_password.txt
+  redis_password:
+    file: ./secrets/redis_password.txt
+  influxdb_admin_token:
+    file: ./secrets/influxdb_admin_token.txt
+  grafana_admin_password:
+    file: ./secrets/grafana_admin_password.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  session_secret:
+    file: ./secrets/session_secret.txt
+  smtp_password:
+    file: ./secrets/smtp_password.txt
+  ssl_cert:
+    file: ./secrets/ssl_cert.pem
+  ssl_key:
+    file: ./secrets/ssl_key.pem
+
+# Production configurations for read-only files
+configs:
+  nginx_config:
+    file: ./config/nginx/nginx.prod.conf
+  postgres_config:
+    file: ./config/postgres/postgresql.prod.conf
+  redis_config:
+    file: ./config/redis/redis.prod.conf
+  prometheus_config:
+    file: ./config/prometheus/prometheus.prod.yml
+  grafana_config:
+    file: ./config/grafana/grafana.prod.ini
+
+# Production volume configurations with security constraints
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind,uid=1000,gid=1000,mode=0700
+      device: /var/lib/docker/volumes/postgres_data
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind,uid=1000,gid=1000,mode=0700
+      device: /var/lib/docker/volumes/redis_data
+  influxdb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind,uid=1000,gid=1000,mode=0700
+      device: /var/lib/docker/volumes/influxdb_data
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind,uid=1000,gid=1000,mode=0700
+      device: /var/lib/docker/volumes/grafana_data
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind,uid=1000,gid=1000,mode=0700
+      device: /var/lib/docker/volumes/prometheus_data
+  loki_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind,uid=1000,gid=1000,mode=0700
+      device: /var/lib/docker/volumes/loki_data
+
+# Additional production security services
+services:
+  # Security scanner for vulnerability assessment
+  security_scanner:
+    image: aquasec/trivy:latest
+    container_name: security-scanner
+    restart: "no"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./security/reports:/reports
+    command: ["filesystem", "--format", "json", "--output", "/reports/security-report.json", "/"]
+    networks:
+      - backend
+    <<: *security-hardened
+    <<: *logging-production
+    
+  # Fail2ban for intrusion prevention
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    container_name: fail2ban
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./config/fail2ban:/etc/fail2ban
+      - ./logs:/var/log:ro
+    environment:
+      TZ: UTC
+      F2B_LOG_LEVEL: INFO
+    <<: *logging-production

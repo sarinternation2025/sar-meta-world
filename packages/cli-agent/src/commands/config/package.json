@@ -1,0 +1,37 @@
+{
+  "name": "@sar-cli/config",
+  "version": "1.0.0",
+  "description": "SAR CLI Configuration Commands - System configuration, environment management, and settings tools",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "sar-cli",
+    "configuration",
+    "settings",
+    "environment",
+    "management"
+  ],
+  "author": "SAR International",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.0.0",
+    "chalk": "^5.3.0",
+    "inquirer": "^9.2.0",
+    "ora": "^7.0.0",
+    "fs-extra": "^11.2.0",
+    "yaml": "^2.3.0",
+    "dotenv": "^16.3.0",
+    "cli-table3": "^0.6.3"
+  },
+  "peerDependencies": {
+    "sar-cli": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

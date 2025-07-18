@@ -1,0 +1,174 @@
+[
+  {
+    "id": "build-1752882221508",
+    "timestamp": "2025-07-18T23:43:41.508Z",
+    "type": "production",
+    "trigger": "test-successful",
+    "startTime": 1752882221512,
+    "endTime": 1752882224845,
+    "duration": 3333,
+    "status": "success",
+    "output": "\n> react-app-3d@0.0.0 build\n> vite build\n\nvite v7.0.5 building for production...\ntransforming...\n✓ 669 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                     0.68 kB │ gzip:   0.40 kB\ndist/assets/index-Bp8V-4pf.css     19.01 kB │ gzip:   4.13 kB\ndist/assets/index-D5YdiEDO.js   1,570.63 kB │ gzip: 437.74 kB\n✓ built in 2.38s\n",
+    "error": "",
+    "buildSize": "1,570.63 kB",
+    "chunkInfo": [
+      {
+        "file": "index.html",
+        "size": "0.68 kB"
+      },
+      {
+        "file": "assets/index-Bp8V-4pf.css",
+        "size": "19.01 kB"
+      },
+      {
+        "file": "assets/index-D5YdiEDO.js",
+        "size": "1,570.63 kB"
+      }
+    ],
+    "warnings": [],
+    "environment": {
+      "node": "v22.17.1",
+      "npm": "11.4.2",
+      "vite": "vite/7.0.5 darwin-arm64 node-v22.17.1"
+    }
+  },
+  {
+    "id": "build-1752882224846",
+    "timestamp": "2025-07-18T23:43:44.846Z",
+    "type": "production",
+    "trigger": "test-failed",
+    "startTime": 1752882224846,
+    "endTime": null,
+    "duration": null,
+    "status": "unexpected-success",
+    "output": "\n> react-app-3d@0.0.0 build\n> vite build\n\nvite v7.0.5 building for production...\ntransforming...\n✓ 669 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                     0.68 kB │ gzip:   0.40 kB\ndist/assets/index-Bp8V-4pf.css     19.01 kB │ gzip:   4.13 kB\ndist/assets/index-D5YdiEDO.js   1,570.63 kB │ gzip: 437.74 kB\n✓ built in 2.32s\n",
+    "error": "",
+    "buildSize": null,
+    "chunkInfo": [],
+    "warnings": [],
+    "environment": {
+      "node": "v22.17.1",
+      "npm": "11.4.2",
+      "vite": "vite/7.0.5 darwin-arm64 node-v22.17.1"
+    }
+  },
+  {
+    "id": "build-1752882227790",
+    "timestamp": "2025-07-18T23:43:47.790Z",
+    "type": "production",
+    "trigger": "test-recovery",
+    "startTime": 1752882227790,
+    "endTime": 1752882230784,
+    "duration": 2994,
+    "status": "success",
+    "output": "\n> react-app-3d@0.0.0 build\n> vite build\n\nvite v7.0.5 building for production...\ntransforming...\n✓ 669 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                     0.68 kB │ gzip:   0.40 kB\ndist/assets/index-Bp8V-4pf.css     19.01 kB │ gzip:   4.13 kB\ndist/assets/index-D5YdiEDO.js   1,570.63 kB │ gzip: 437.74 kB\n✓ built in 2.34s\n",
+    "error": "",
+    "buildSize": "1,570.63 kB",
+    "chunkInfo": [
+      {
+        "file": "index.html",
+        "size": "0.68 kB"
+      },
+      {
+        "file": "assets/index-Bp8V-4pf.css",
+        "size": "19.01 kB"
+      },
+      {
+        "file": "assets/index-D5YdiEDO.js",
+        "size": "1,570.63 kB"
+      }
+    ],
+    "warnings": [],
+    "environment": {
+      "node": "v22.17.1",
+      "npm": "11.4.2",
+      "vite": "vite/7.0.5 darwin-arm64 node-v22.17.1"
+    }
+  },
+  {
+    "id": "build-1752882293579",
+    "timestamp": "2025-07-18T23:44:53.579Z",
+    "type": "production",
+    "trigger": "test-successful",
+    "startTime": 1752882293584,
+    "endTime": 1752882296853,
+    "duration": 3269,
+    "status": "success",
+    "output": "\n> react-app-3d@0.0.0 build\n> vite build\n\nvite v7.0.5 building for production...\ntransforming...\n✓ 669 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                     0.68 kB │ gzip:   0.40 kB\ndist/assets/index-Bp8V-4pf.css     19.01 kB │ gzip:   4.13 kB\ndist/assets/index-D5YdiEDO.js   1,570.63 kB │ gzip: 437.74 kB\n✓ built in 2.40s\n",
+    "error": "",
+    "buildSize": "1,570.63 kB",
+    "chunkInfo": [
+      {
+        "file": "index.html",
+        "size": "0.68 kB"
+      },
+      {
+        "file": "assets/index-Bp8V-4pf.css",
+        "size": "19.01 kB"
+      },
+      {
+        "file": "assets/index-D5YdiEDO.js",
+        "size": "1,570.63 kB"
+      }
+    ],
+    "warnings": [],
+    "environment": {
+      "node": "v22.17.1",
+      "npm": "11.4.2",
+      "vite": "vite/7.0.5 darwin-arm64 node-v22.17.1"
+    }
+  },
+  {
+    "id": "build-1752882296854",
+    "timestamp": "2025-07-18T23:44:56.854Z",
+    "type": "production",
+    "trigger": "test-failed",
+    "startTime": 1752882296854,
+    "endTime": null,
+    "duration": null,
+    "status": "unexpected-success",
+    "output": "\n> react-app-3d@0.0.0 build\n> vite build\n\nvite v7.0.5 building for production...\ntransforming...\n✓ 669 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                     0.68 kB │ gzip:   0.40 kB\ndist/assets/index-Bp8V-4pf.css     19.01 kB │ gzip:   4.13 kB\ndist/assets/index-D5YdiEDO.js   1,570.63 kB │ gzip: 437.74 kB\n✓ built in 2.40s\n",
+    "error": "",
+    "buildSize": null,
+    "chunkInfo": [],
+    "warnings": [],
+    "environment": {
+      "node": "v22.17.1",
+      "npm": "11.4.2",
+      "vite": "vite/7.0.5 darwin-arm64 node-v22.17.1"
+    }
+  },
+  {
+    "id": "build-1752882299895",
+    "timestamp": "2025-07-18T23:44:59.895Z",
+    "type": "production",
+    "trigger": "test-recovery",
+    "startTime": 1752882299895,
+    "endTime": 1752882302984,
+    "duration": 3089,
+    "status": "success",
+    "output": "\n> react-app-3d@0.0.0 build\n> vite build\n\nvite v7.0.5 building for production...\ntransforming...\n✓ 669 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                     0.68 kB │ gzip:   0.40 kB\ndist/assets/index-Bp8V-4pf.css     19.01 kB │ gzip:   4.13 kB\ndist/assets/index-D5YdiEDO.js   1,570.63 kB │ gzip: 437.74 kB\n✓ built in 2.40s\n",
+    "error": "",
+    "buildSize": "1,570.63 kB",
+    "chunkInfo": [
+      {
+        "file": "index.html",
+        "size": "0.68 kB"
+      },
+      {
+        "file": "assets/index-Bp8V-4pf.css",
+        "size": "19.01 kB"
+      },
+      {
+        "file": "assets/index-D5YdiEDO.js",
+        "size": "1,570.63 kB"
+      }
+    ],
+    "warnings": [],
+    "environment": {
+      "node": "v22.17.1",
+      "npm": "11.4.2",
+      "vite": "vite/7.0.5 darwin-arm64 node-v22.17.1"
+    }
+  }
+]

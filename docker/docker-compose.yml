@@ -31,7 +31,7 @@ services:
     image: redis:7-alpine
     container_name: redis-cache
     restart: unless-stopped
-    command: redis-server /etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf --requirepass ${REDIS_PASSWORD:-+fIQO/+ARzHgYBPgxk7Q+zgYPUi7biCuex/e3kNWMec=}
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
@@ -43,7 +43,7 @@ services:
     sysctls:
       - net.core.somaxconn=511
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-+fIQO/+ARzHgYBPgxk7Q+zgYPUi7biCuex/e3kNWMec=}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -66,7 +66,6 @@ services:
     volumes:
       - influxdb_data:/var/lib/influxdb2
       - influxdb_config:/etc/influxdb2
-      - ./config/influxdb/influxdb.conf:/etc/influxdb2/influxdb.conf:ro
       - ./logs/influxdb:/var/log/influxdb
     networks:
       - backend
@@ -93,7 +92,7 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1"]
+      test: ["CMD", "mosquitto_sub", "-u", "admin", "-P", "admin123", "-t", "$$SYS/#", "-C", "1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -107,7 +106,7 @@ services:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
       GF_USERS_ALLOW_SIGN_UP: false
-      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,influxdb-datasource
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
     ports:
       - "${GRAFANA_PORT:-3000}:3000"
     volumes:
@@ -178,6 +177,7 @@ services:
     restart: unless-stopped
     environment:
       REDIS_ADDR: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-+fIQO/+ARzHgYBPgxk7Q+zgYPUi7biCuex/e3kNWMec=}
     ports:
       - "${REDIS_EXPORTER_PORT:-9121}:9121"
     networks:
@@ -218,7 +218,7 @@ services:
     depends_on:
       - grafana
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -244,7 +244,7 @@ services:
     container_name: redis-commander
     restart: unless-stopped
     environment:
-      REDIS_HOSTS: local:redis:6379
+      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-+fIQO/+ARzHgYBPgxk7Q+zgYPUi7biCuex/e3kNWMec=}
       HTTP_USER: ${REDIS_COMMANDER_USER:-admin}
       HTTP_PASSWORD: ${REDIS_COMMANDER_PASSWORD:-admin123}
     ports:
@@ -254,6 +254,53 @@ services:
     depends_on:
       - redis
   
+  # Backend Node.js API
+  backend:
+    build:
+      context: ../packages/backend
+      dockerfile: Dockerfile
+    container_name: backend-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-chatapp}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-+fIQO/+ARzHgYBPgxk7Q+zgYPUi7biCuex/e3kNWMec=}
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+      MQTT_BROKER_URL: mqtt://mosquitto:1883
+      MQTT_USERNAME: ${MQTT_USERNAME:-chatapp_mqtt}
+      MQTT_PASSWORD: mqtt_password_123
+      INFLUXDB_HOST: influxdb
+      INFLUXDB_PORT: 8086
+      INFLUXDB_TOKEN: ${INFLUXDB_ADMIN_TOKEN:-my-super-secret-admin-token}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-chatapp}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-metrics}
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    volumes:
+      - ./logs/backend:/app/logs
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - postgres
+      - redis
+      - mosquitto
+      - influxdb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
   frontend:
     build:
       context: ../packages/frontend
@@ -264,6 +311,8 @@ services:
       - "80:80"
     networks:
       - frontend
+    depends_on:
+      - backend
 
 networks:
   backend:

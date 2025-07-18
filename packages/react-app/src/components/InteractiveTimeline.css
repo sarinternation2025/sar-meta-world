@@ -1,0 +1,218 @@
+.interactive-timeline {
+  background: rgba(0, 0, 17, 0.9);
+  border: 2px solid var(--theme-accent, #00ffff);
+  border-radius: 15px;
+  margin: 20px;
+  padding: 20px;
+  font-family: 'Courier New', monospace;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--theme-accent, #00ffff);
+}
+
+.timeline-header h3 {
+  color: var(--theme-accent, #00ffff);
+  margin: 0;
+  font-size: 18px;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.timeline-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.metric-select, .time-select {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--theme-accent, #00ffff);
+  color: var(--theme-accent, #00ffff);
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.metric-select:hover, .time-select:hover {
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.metric-select option, .time-select option {
+  background: rgba(0, 0, 17, 0.95);
+  color: var(--theme-accent, #00ffff);
+}
+
+.play-btn, .export-btn {
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid var(--theme-accent, #00ffff);
+  color: var(--theme-accent, #00ffff);
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-btn:hover, .export-btn:hover {
+  background: rgba(0, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.play-btn.playing {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: #00ff00;
+  color: #00ff00;
+}
+
+.play-btn.paused {
+  background: rgba(255, 165, 0, 0.1);
+  border-color: #ffaa00;
+  color: #ffaa00;
+}
+
+.timeline-canvas-container {
+  margin: 20px 0;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.timeline-canvas {
+  width: 100%;
+  height: 300px;
+  background: rgba(0, 0, 0, 0.5);
+  display: block;
+  cursor: crosshair;
+}
+
+.timeline-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.stat-item span:first-child {
+  color: rgba(0, 255, 255, 0.7);
+}
+
+.stat-value {
+  color: var(--theme-accent, #00ffff);
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .timeline-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .timeline-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .metric-select, .time-select {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .timeline-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .stat-item {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* Animation for new data points */
+@keyframes dataPointPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Tooltip styles for canvas hover */
+.timeline-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid var(--theme-accent, #00ffff);
+  color: var(--theme-accent, #00ffff);
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 1000;
+  display: none;
+}
+
+.timeline-canvas:hover + .timeline-tooltip {
+  display: block;
+}
+
+/* Loading state */
+.timeline-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  color: var(--theme-accent, #00ffff);
+  font-size: 16px;
+}
+
+.timeline-loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--theme-accent, #00ffff);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

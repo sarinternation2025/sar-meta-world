@@ -10,6 +10,11 @@ CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
 CREATE DATABASE chatapp_test;
 CREATE DATABASE chatapp_dev;
 
+-- Set up replication user
+CREATE ROLE replicator WITH REPLICATION LOGIN PASSWORD 'replicator_password';
+GRANT CONNECT ON DATABASE chatapp_dev TO replicator;
+GRANT CONNECT ON DATABASE chatapp_test TO replicator;
+
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

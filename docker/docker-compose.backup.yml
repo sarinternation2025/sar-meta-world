@@ -1,0 +1,159 @@
+version: '3.8'
+
+services:
+  # Enhanced Backup Service
+  backup-service:
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile.backup
+    container_name: backup-service
+    restart: unless-stopped
+    environment:
+      - BACKUP_SCHEDULE=0 2 * * *  # Daily at 2 AM
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${POSTGRES_DB:-chatapp}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres123}
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-+fIQO/+ARzHgYBPgxk7Q+zgYPUi7biCuex/e3kNWMec=}
+      - INFLUXDB_HOST=influxdb
+      - INFLUXDB_TOKEN=${INFLUXDB_ADMIN_TOKEN:-my-super-secret-admin-token}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-chatapp}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-metrics}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - LOG_LEVEL=info
+    volumes:
+      - ./backups:/backups
+      - ./logs:/var/log
+      - ./scripts:/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - backend
+    depends_on:
+      - postgres
+      - redis
+      - influxdb
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+
+  # Log Rotation Service
+  log-rotation-service:
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile.logrotate
+    container_name: log-rotation-service
+    restart: unless-stopped
+    environment:
+      - LOG_ROTATION_SCHEDULE=0 1 * * *  # Daily at 1 AM
+      - LOG_RETENTION_DAYS=30
+      - COMPRESS_LOGS=true
+      - EMERGENCY_CLEANUP_THRESHOLD=95
+    volumes:
+      - ./logs:/var/log/app
+      - ./scripts:/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # System Monitor Service
+  system-monitor:
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile.monitor
+    container_name: system-monitor
+    restart: unless-stopped
+    environment:
+      - MONITOR_INTERVAL=300  # 5 minutes
+      - DISK_USAGE_THRESHOLD=85
+      - MEMORY_USAGE_THRESHOLD=85
+      - CPU_USAGE_THRESHOLD=85
+      - NOTIFICATION_WEBHOOK=${NOTIFICATION_WEBHOOK}
+    volumes:
+      - ./logs:/var/log/app
+      - ./scripts:/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # Log Aggregator (Loki)
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki-logs
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+      - ./config/loki:/etc/loki:ro
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+
+  # Log Collector (Promtail)
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: promtail-collector
+    restart: unless-stopped
+    volumes:
+      - ./logs:/var/log/app:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/promtail:/etc/promtail:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - backend
+    depends_on:
+      - loki
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+networks:
+  backend:
+    external: true
+
+volumes:
+  loki_data:
+    driver: local
