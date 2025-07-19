@@ -3,7 +3,7 @@
  * Tests the security and functionality of the configuration system
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { config } from './index.js';
 
 describe('Environment Configuration', () => {

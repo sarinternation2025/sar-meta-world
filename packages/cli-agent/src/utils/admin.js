@@ -1,5 +1,5 @@
-const chalk = require('chalk');
-const { logger } = require('./logger');
+const chalk = require("chalk");
+const { logger } = require("./logger");
 
 /**
  * Admin utility for permission checking
@@ -10,7 +10,9 @@ class AdminUtils {
    * @returns {boolean} True if user is admin
    */
   static isAdmin() {
-    return process.env.SARU_ADMIN === 'true' || process.env.SAR_ADMIN === 'true';
+    return (
+      process.env.SARU_ADMIN === "true" || process.env.SAR_ADMIN === "true"
+    );
   }
 
   /**
@@ -18,18 +20,20 @@ class AdminUtils {
    * @param {string} commandName - Name of the command being executed
    * @param {boolean} silent - Whether to suppress output
    */
-  static checkAdminAccess(commandName = 'This command', silent = false) {
+  static checkAdminAccess(commandName = "This command", silent = false) {
     if (!AdminUtils.isAdmin()) {
       const message = `${commandName} requires admin privileges. Set SARU_ADMIN=true to enable admin mode.`;
-      
+
       if (!silent) {
         console.error(chalk.red(`❌ Access Denied: ${message}`));
-        console.error(chalk.yellow('💡 Hint: Run with admin privileges:'));
-        console.error(chalk.gray('   export SARU_ADMIN=true'));
-        console.error(chalk.gray('   sar-cli ' + process.argv.slice(2).join(' ')));
+        console.error(chalk.yellow("💡 Hint: Run with admin privileges:"));
+        console.error(chalk.gray("   export SARU_ADMIN=true"));
+        console.error(
+          chalk.gray("   sar-cli " + process.argv.slice(2).join(" ")),
+        );
       }
-      
-      logger.error('Admin access denied for command:', commandName);
+
+      logger.error("Admin access denied for command:", commandName);
       process.exit(1);
     }
   }
@@ -39,13 +43,13 @@ class AdminUtils {
    * @param {string} commandName - Name of the command being executed
    * @returns {boolean} True if user has admin access
    */
-  static hasAdminAccess(commandName = 'command') {
+  static hasAdminAccess(commandName = "command") {
     const hasAccess = AdminUtils.isAdmin();
-    
+
     if (!hasAccess) {
-      logger.warn('Admin access denied for command:', commandName);
+      logger.warn("Admin access denied for command:", commandName);
     }
-    
+
     return hasAccess;
   }
 
@@ -56,27 +60,27 @@ class AdminUtils {
    * @returns {Promise<boolean>} True if user confirms
    */
   static async promptAdminConfirmation(action, warning) {
-    const { default: inquirer } = await import('inquirer');
-    
+    const { default: inquirer } = await import("inquirer");
+
     console.log(chalk.yellow(`⚠️  ${warning}`));
     console.log(chalk.gray(`You are about to: ${action}`));
-    console.log('');
-    
+    console.log("");
+
     const answer = await inquirer.prompt([
       {
-        type: 'confirm',
-        name: 'confirmed',
-        message: 'Are you sure you want to continue?',
-        default: false
-      }
+        type: "confirm",
+        name: "confirmed",
+        message: "Are you sure you want to continue?",
+        default: false,
+      },
     ]);
-    
+
     if (answer.confirmed) {
-      logger.info('Admin action confirmed:', action);
+      logger.info("Admin action confirmed:", action);
     } else {
-      logger.info('Admin action cancelled:', action);
+      logger.info("Admin action cancelled:", action);
     }
-    
+
     return answer.confirmed;
   }
 
@@ -93,7 +97,7 @@ class AdminUtils {
     const {
       requireConfirmation = false,
       action = commandName,
-      warning = 'This action requires admin privileges and may affect system configuration.'
+      warning = "This action requires admin privileges and may affect system configuration.",
     } = options;
 
     // Check admin privileges
@@ -101,9 +105,12 @@ class AdminUtils {
 
     // Prompt for confirmation if required
     if (requireConfirmation) {
-      const confirmed = await AdminUtils.promptAdminConfirmation(action, warning);
+      const confirmed = await AdminUtils.promptAdminConfirmation(
+        action,
+        warning,
+      );
       if (!confirmed) {
-        console.log(chalk.yellow('Operation cancelled.'));
+        console.log(chalk.yellow("Operation cancelled."));
         process.exit(0);
       }
     }
@@ -117,9 +124,9 @@ class AdminUtils {
    */
   static getAdminEnv() {
     return {
-      SARU_ADMIN: process.env.SARU_ADMIN || 'false',
-      SAR_ADMIN: process.env.SAR_ADMIN || 'false',
-      isAdmin: AdminUtils.isAdmin()
+      SARU_ADMIN: process.env.SARU_ADMIN || "false",
+      SAR_ADMIN: process.env.SAR_ADMIN || "false",
+      isAdmin: AdminUtils.isAdmin(),
     };
   }
 
@@ -129,11 +136,11 @@ class AdminUtils {
    * @param {Object} details - Additional details
    */
   static logAdminAction(action, details = {}) {
-    logger.info('Admin action performed:', {
+    logger.info("Admin action performed:", {
       action,
-      user: process.env.USER || process.env.USERNAME || 'unknown',
+      user: process.env.USER || process.env.USERNAME || "unknown",
       timestamp: new Date().toISOString(),
-      ...details
+      ...details,
     });
   }
 
@@ -151,8 +158,11 @@ class AdminUtils {
         AdminUtils.logAdminAction(commandName, { args: args.slice(0, -1) }); // Exclude command object
         return await handler(...args);
       } catch (error) {
-        logger.error('Admin command error:', error.message);
-        console.error(chalk.red(`❌ Error executing ${commandName}:`), error.message);
+        logger.error("Admin command error:", error.message);
+        console.error(
+          chalk.red(`❌ Error executing ${commandName}:`),
+          error.message,
+        );
         process.exit(1);
       }
     };
@@ -167,11 +177,11 @@ class AdminUtils {
     const issues = [];
 
     if (!env.isAdmin) {
-      issues.push('Admin privileges not enabled');
+      issues.push("Admin privileges not enabled");
     }
 
     // Check for common admin-related environment variables
-    const requiredEnvVars = ['NODE_ENV'];
+    const requiredEnvVars = ["NODE_ENV"];
     for (const envVar of requiredEnvVars) {
       if (!process.env[envVar]) {
         issues.push(`Missing environment variable: ${envVar}`);
@@ -181,7 +191,7 @@ class AdminUtils {
     return {
       isValid: issues.length === 0,
       issues,
-      env
+      env,
     };
   }
 }
@@ -191,5 +201,5 @@ module.exports = {
   // Legacy exports for backward compatibility
   isAdmin: AdminUtils.isAdmin,
   checkAdminAccess: AdminUtils.checkAdminAccess,
-  hasAdminAccess: AdminUtils.hasAdminAccess
+  hasAdminAccess: AdminUtils.hasAdminAccess,
 };

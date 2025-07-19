@@ -1,54 +1,69 @@
-const fs = require('fs-extra');
-const path = require('path');
-const inquirer = require('inquirer');
-const chalk = require('chalk');
-const ora = require('ora');
-const { execSync } = require('child_process');
+const fs = require("fs-extra");
+const path = require("path");
+const inquirer = require("inquirer");
+const chalk = require("chalk");
+const ora = require("ora");
+const { execSync } = require("child_process");
 
 class ScaffoldCommand {
   constructor() {
     this.templates = {
-      'react-app': {
-        name: 'React Application',
-        description: 'Modern React app with Vite, TypeScript, and Tailwind CSS',
-        dependencies: ['react', 'react-dom', 'vite', 'typescript', 'tailwindcss'],
-        devDependencies: ['@vitejs/plugin-react', 'eslint', 'prettier']
+      "react-app": {
+        name: "React Application",
+        description: "Modern React app with Vite, TypeScript, and Tailwind CSS",
+        dependencies: [
+          "react",
+          "react-dom",
+          "vite",
+          "typescript",
+          "tailwindcss",
+        ],
+        devDependencies: ["@vitejs/plugin-react", "eslint", "prettier"],
       },
-      'node-api': {
-        name: 'Node.js API',
-        description: 'Express.js API with TypeScript, validation, and monitoring',
-        dependencies: ['express', 'cors', 'helmet', 'morgan', 'joi', 'winston'],
-        devDependencies: ['nodemon', 'typescript', '@types/node', '@types/express']
+      "node-api": {
+        name: "Node.js API",
+        description:
+          "Express.js API with TypeScript, validation, and monitoring",
+        dependencies: ["express", "cors", "helmet", "morgan", "joi", "winston"],
+        devDependencies: [
+          "nodemon",
+          "typescript",
+          "@types/node",
+          "@types/express",
+        ],
       },
-      'docker-service': {
-        name: 'Docker Service',
-        description: 'Containerized service with Docker Compose integration',
+      "docker-service": {
+        name: "Docker Service",
+        description: "Containerized service with Docker Compose integration",
         dependencies: [],
-        devDependencies: []
+        devDependencies: [],
       },
-      'monitoring-dashboard': {
-        name: 'Monitoring Dashboard',
-        description: 'Real-time monitoring dashboard with Grafana and Prometheus',
-        dependencies: ['express', 'socket.io', 'systeminformation'],
-        devDependencies: ['nodemon']
-      }
+      "monitoring-dashboard": {
+        name: "Monitoring Dashboard",
+        description:
+          "Real-time monitoring dashboard with Grafana and Prometheus",
+        dependencies: ["express", "socket.io", "systeminformation"],
+        devDependencies: ["nodemon"],
+      },
     };
   }
 
   async execute(options = {}) {
-    console.log(chalk.blue.bold('🚀 SAR Meta World Project Scaffold'));
-    console.log(chalk.gray('Create new projects with best practices and standards\n'));
+    console.log(chalk.blue.bold("🚀 SAR Meta World Project Scaffold"));
+    console.log(
+      chalk.gray("Create new projects with best practices and standards\n"),
+    );
 
     const answers = await this.promptUser(options);
-    const spinner = ora('Creating project structure...').start();
+    const spinner = ora("Creating project structure...").start();
 
     try {
       await this.createProject(answers);
-      spinner.succeed('Project created successfully!');
+      spinner.succeed("Project created successfully!");
       this.showNextSteps(answers);
     } catch (error) {
-      spinner.fail('Failed to create project');
-      console.error(chalk.red('Error:'), error.message);
+      spinner.fail("Failed to create project");
+      console.error(chalk.red("Error:"), error.message);
       process.exit(1);
     }
   }
@@ -56,137 +71,142 @@ class ScaffoldCommand {
   async promptUser(options) {
     const questions = [
       {
-        type: 'input',
-        name: 'projectName',
-        message: 'Project name:',
+        type: "input",
+        name: "projectName",
+        message: "Project name:",
         when: !options.name,
         validate: (input) => {
-          if (!input.trim()) return 'Project name is required';
-          if (!/^[a-zA-Z0-9-_]+$/.test(input)) return 'Invalid project name';
+          if (!input.trim()) return "Project name is required";
+          if (!/^[a-zA-Z0-9-_]+$/.test(input)) return "Invalid project name";
           return true;
-        }
+        },
       },
       {
-        type: 'list',
-        name: 'template',
-        message: 'Choose a template:',
+        type: "list",
+        name: "template",
+        message: "Choose a template:",
         choices: Object.entries(this.templates).map(([key, template]) => ({
           name: `${template.name} - ${template.description}`,
-          value: key
+          value: key,
         })),
-        when: !options.template
+        when: !options.template,
       },
       {
-        type: 'input',
-        name: 'description',
-        message: 'Project description:',
-        when: !options.description
+        type: "input",
+        name: "description",
+        message: "Project description:",
+        when: !options.description,
       },
       {
-        type: 'input',
-        name: 'author',
-        message: 'Author name:',
-        default: 'SAR International',
-        when: !options.author
+        type: "input",
+        name: "author",
+        message: "Author name:",
+        default: "SAR International",
+        when: !options.author,
       },
       {
-        type: 'confirm',
-        name: 'useTypeScript',
-        message: 'Use TypeScript?',
+        type: "confirm",
+        name: "useTypeScript",
+        message: "Use TypeScript?",
         default: true,
-        when: (answers) => ['react-app', 'node-api'].includes(answers.template || options.template)
+        when: (answers) =>
+          ["react-app", "node-api"].includes(
+            answers.template || options.template,
+          ),
       },
       {
-        type: 'confirm',
-        name: 'includeDocker',
-        message: 'Include Docker configuration?',
+        type: "confirm",
+        name: "includeDocker",
+        message: "Include Docker configuration?",
         default: true,
-        when: !options.docker
+        when: !options.docker,
       },
       {
-        type: 'confirm',
-        name: 'includeGitHub',
-        message: 'Include GitHub Actions CI/CD?',
+        type: "confirm",
+        name: "includeGitHub",
+        message: "Include GitHub Actions CI/CD?",
         default: true,
-        when: !options.github
+        when: !options.github,
       },
       {
-        type: 'confirm',
-        name: 'includeMonitoring',
-        message: 'Include monitoring setup?',
+        type: "confirm",
+        name: "includeMonitoring",
+        message: "Include monitoring setup?",
         default: true,
-        when: !options.monitoring
-      }
+        when: !options.monitoring,
+      },
     ];
 
-    return { ...options, ...await inquirer.prompt(questions) };
+    return { ...options, ...(await inquirer.prompt(questions)) };
   }
 
   async createProject(answers) {
     const {
       projectName,
       template,
-      description,
-      author,
+      description, // eslint-disable-line no-unused-vars
+      author, // eslint-disable-line no-unused-vars
       useTypeScript,
       includeDocker,
       includeGitHub,
-      includeMonitoring
+      includeMonitoring,
     } = answers;
 
     const projectPath = path.join(process.cwd(), projectName);
-    
+
     // Create project directory
     await fs.ensureDir(projectPath);
-    
+
     // Create basic structure
     await this.createBasicStructure(projectPath, answers);
-    
+
     // Create template-specific files
     await this.createTemplateFiles(projectPath, template, answers);
-    
+
     // Add optional features
     if (includeDocker) await this.addDockerFiles(projectPath, template);
     if (includeGitHub) await this.addGitHubActions(projectPath, template);
     if (includeMonitoring) await this.addMonitoringSetup(projectPath);
-    
+
     // Initialize git repository
     await this.initializeGit(projectPath);
-    
+
     // Install dependencies
     await this.installDependencies(projectPath, template, useTypeScript);
   }
 
   async createBasicStructure(projectPath, answers) {
     const { projectName, description, author } = answers;
-    
+
     // Create package.json
     const packageJson = {
       name: projectName,
-      version: '1.0.0',
-      description: description || 'SAR Meta World Project',
-      main: 'index.js',
+      version: "1.0.0",
+      description: description || "SAR Meta World Project",
+      main: "index.js",
       scripts: {
-        start: 'node index.js',
-        dev: 'nodemon index.js',
-        build: 'npm run build:prod',
-        test: 'jest',
-        lint: 'eslint .',
-        format: 'prettier --write .'
+        start: "node index.js",
+        dev: "nodemon index.js",
+        build: "npm run build:prod",
+        test: "jest",
+        lint: "eslint .",
+        format: "prettier --write .",
       },
-      keywords: ['sar', 'meta-world', 'monitoring'],
-      author: author || 'SAR International',
-      license: 'MIT',
+      keywords: ["sar", "meta-world", "monitoring"],
+      author: author || "SAR International",
+      license: "MIT",
       dependencies: {},
-      devDependencies: {}
+      devDependencies: {},
     };
 
-    await fs.writeJSON(path.join(projectPath, 'package.json'), packageJson, { spaces: 2 });
+    await fs.writeJSON(path.join(projectPath, "package.json"), packageJson, {
+      spaces: 2,
+    });
 
     // Create README.md
     const readmeContent = `# ${projectName}
 
-${description || 'SAR Meta World Project'}
+${description || "SAR Meta World Project"}
 
 ## Features
 
@@ -236,13 +256,13 @@ ${projectName}/
 MIT License - see LICENSE file for details
 `;
 
-    await fs.writeFile(path.join(projectPath, 'README.md'), readmeContent);
+    await fs.writeFile(path.join(projectPath, "README.md"), readmeContent);
 
     // Create basic directories
-    await fs.ensureDir(path.join(projectPath, 'src'));
-    await fs.ensureDir(path.join(projectPath, 'tests'));
-    await fs.ensureDir(path.join(projectPath, 'docs'));
-    await fs.ensureDir(path.join(projectPath, 'config'));
+    await fs.ensureDir(path.join(projectPath, "src"));
+    await fs.ensureDir(path.join(projectPath, "tests"));
+    await fs.ensureDir(path.join(projectPath, "docs"));
+    await fs.ensureDir(path.join(projectPath, "config"));
 
     // Create .gitignore
     const gitignoreContent = `
@@ -296,23 +316,26 @@ logs/
 docker-compose.override.yml
 `;
 
-    await fs.writeFile(path.join(projectPath, '.gitignore'), gitignoreContent.trim());
+    await fs.writeFile(
+      path.join(projectPath, ".gitignore"),
+      gitignoreContent.trim(),
+    );
   }
 
   async createTemplateFiles(projectPath, template, answers) {
-    const templateConfig = this.templates[template];
-    
+    const templateConfig = this.templates[template]; // eslint-disable-line no-unused-vars
+
     switch (template) {
-      case 'react-app':
+      case "react-app":
         await this.createReactApp(projectPath, answers);
         break;
-      case 'node-api':
+      case "node-api":
         await this.createNodeAPI(projectPath, answers);
         break;
-      case 'docker-service':
+      case "docker-service":
         await this.createDockerService(projectPath, answers);
         break;
-      case 'monitoring-dashboard':
+      case "monitoring-dashboard":
         await this.createMonitoringDashboard(projectPath, answers);
         break;
     }
@@ -320,8 +343,8 @@ docker-compose.override.yml
 
   async createReactApp(projectPath, answers) {
     const { useTypeScript } = answers;
-    const extension = useTypeScript ? 'tsx' : 'jsx';
-    
+    const extension = useTypeScript ? "tsx" : "jsx";
+
     // Create App component
     const appComponent = `import React from 'react';
 import './App.css';
@@ -339,7 +362,10 @@ function App() {
 
 export default App;`;
 
-    await fs.writeFile(path.join(projectPath, `src/App.${extension}`), appComponent);
+    await fs.writeFile(
+      path.join(projectPath, `src/App.${extension}`),
+      appComponent,
+    );
 
     // Create index file
     const indexContent = `import React from 'react';
@@ -350,7 +376,10 @@ import './index.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);`;
 
-    await fs.writeFile(path.join(projectPath, `src/index.${extension}`), indexContent);
+    await fs.writeFile(
+      path.join(projectPath, `src/index.${extension}`),
+      indexContent,
+    );
 
     // Create Vite config
     const viteConfig = `import { defineConfig } from 'vite';
@@ -368,13 +397,13 @@ export default defineConfig({
   }
 });`;
 
-    await fs.writeFile(path.join(projectPath, 'vite.config.js'), viteConfig);
+    await fs.writeFile(path.join(projectPath, "vite.config.js"), viteConfig);
   }
 
   async createNodeAPI(projectPath, answers) {
     const { useTypeScript } = answers;
-    const extension = useTypeScript ? 'ts' : 'js';
-    
+    const extension = useTypeScript ? "ts" : "js";
+
     // Create main server file
     const serverContent = `const express = require('express');
 const cors = require('cors');
@@ -425,7 +454,10 @@ app.listen(port, () => {
   logger.info(\`Server running on port \${port}\`);
 });`;
 
-    await fs.writeFile(path.join(projectPath, `src/index.${extension}`), serverContent);
+    await fs.writeFile(
+      path.join(projectPath, `src/index.${extension}`),
+      serverContent,
+    );
   }
 
   async addDockerFiles(projectPath, template) {
@@ -445,7 +477,7 @@ USER node
 
 CMD ["npm", "start"]`;
 
-    await fs.writeFile(path.join(projectPath, 'Dockerfile'), dockerfileContent);
+    await fs.writeFile(path.join(projectPath, "Dockerfile"), dockerfileContent);
 
     // Create docker-compose.yml
     const dockerComposeContent = `version: '3.8'
@@ -465,11 +497,14 @@ services:
   #   ports:
   #     - "6379:6379"`;
 
-    await fs.writeFile(path.join(projectPath, 'docker-compose.yml'), dockerComposeContent);
+    await fs.writeFile(
+      path.join(projectPath, "docker-compose.yml"),
+      dockerComposeContent,
+    );
   }
 
   async addGitHubActions(projectPath, template) {
-    const workflowsPath = path.join(projectPath, '.github/workflows');
+    const workflowsPath = path.join(projectPath, ".github/workflows");
     await fs.ensureDir(workflowsPath);
 
     const ciContent = `name: CI/CD Pipeline
@@ -523,37 +558,42 @@ jobs:
         # Add your deployment commands
 `;
 
-    await fs.writeFile(path.join(workflowsPath, 'ci.yml'), ciContent);
+    await fs.writeFile(path.join(workflowsPath, "ci.yml"), ciContent);
   }
 
   async initializeGit(projectPath) {
     try {
-      execSync('git init', { cwd: projectPath, stdio: 'pipe' });
-      execSync('git add .', { cwd: projectPath, stdio: 'pipe' });
-      execSync('git commit -m "Initial commit"', { cwd: projectPath, stdio: 'pipe' });
+      execSync("git init", { cwd: projectPath, stdio: "pipe" });
+      execSync("git add .", { cwd: projectPath, stdio: "pipe" });
+      execSync('git commit -m "Initial commit"', {
+        cwd: projectPath,
+        stdio: "pipe",
+      });
     } catch (error) {
-      console.warn(chalk.yellow('Warning: Failed to initialize git repository'));
+      console.warn(
+        chalk.yellow("Warning: Failed to initialize git repository"),
+      );
     }
   }
 
   async installDependencies(projectPath, template, useTypeScript) {
     const templateConfig = this.templates[template];
-    const packageJsonPath = path.join(projectPath, 'package.json');
+    const packageJsonPath = path.join(projectPath, "package.json");
     const packageJson = await fs.readJSON(packageJsonPath);
 
     // Add template-specific dependencies
-    templateConfig.dependencies.forEach(dep => {
-      packageJson.dependencies[dep] = 'latest';
+    templateConfig.dependencies.forEach((dep) => {
+      packageJson.dependencies[dep] = "latest";
     });
 
-    templateConfig.devDependencies.forEach(dep => {
-      packageJson.devDependencies[dep] = 'latest';
+    templateConfig.devDependencies.forEach((dep) => {
+      packageJson.devDependencies[dep] = "latest";
     });
 
     // Add TypeScript dependencies if needed
     if (useTypeScript) {
-      packageJson.devDependencies.typescript = 'latest';
-      packageJson.devDependencies['@types/node'] = 'latest';
+      packageJson.devDependencies.typescript = "latest";
+      packageJson.devDependencies["@types/node"] = "latest";
     }
 
     await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
@@ -561,13 +601,15 @@ jobs:
 
   showNextSteps(answers) {
     const { projectName } = answers;
-    
-    console.log(chalk.green.bold('\n✅ Project created successfully!'));
-    console.log(chalk.gray('Next steps:'));
+
+    console.log(chalk.green.bold("\n✅ Project created successfully!"));
+    console.log(chalk.gray("Next steps:"));
     console.log(chalk.blue(`  cd ${projectName}`));
-    console.log(chalk.blue('  npm install'));
-    console.log(chalk.blue('  npm run dev'));
-    console.log(chalk.gray('\nFor more information, check the README.md file.'));
+    console.log(chalk.blue("  npm install"));
+    console.log(chalk.blue("  npm run dev"));
+    console.log(
+      chalk.gray("\nFor more information, check the README.md file."),
+    );
   }
 }
 

@@ -195,7 +195,7 @@ const checkAllServicesHealth = async (customServices = null) => {
 };
 
 // Get service uptime (simplified version)
-const getServiceUptime = (serviceName) => {
+const getServiceUptime = (_serviceName) => {
   // In a real implementation, this would track actual uptime
   // For now, return a mock uptime
   return Math.floor(Math.random() * 86400); // Random uptime up to 24 hours

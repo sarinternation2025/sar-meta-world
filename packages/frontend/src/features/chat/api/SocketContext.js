@@ -107,10 +107,11 @@ export const SocketProvider = ({ children }) => {
 };
 
 // Higher-order component for wrapping components that need socket access
-export const withSocket = (Component) => {
+// eslint-disable-next-line no-unused-vars
+export const withSocket = (WrappedComponent) => {
   return (props) => {
     const socketContext = useSocket();
-    return <Component {...props} socket={socketContext} />;
+    return <WrappedComponent {...props} socket={socketContext} />;
   };
 };
 

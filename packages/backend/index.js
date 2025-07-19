@@ -4,7 +4,7 @@ const { Server } = require('socket.io');
 const si = require('systeminformation');
 const Docker = require('dockerode');
 const { checkAlerts, getActiveAlerts, clearAlert, getAlertHistory } = require('./alerts');
-const { checkAllServicesHealth, defaultServices } = require('./utils/serviceHealth');
+const { checkAllServicesHealth, defaultServices: _defaultServices } = require('./utils/serviceHealth');
 const MetricsAggregator = require('./utils/metricsAggregator');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -409,7 +409,7 @@ app.delete('/api/monitoring/alerts/:alertId', (req, res) => {
     res.json({
       success: true,
       message: cleared ? 'Alert cleared successfully' : 'Alert not found',
-      alertId: alertId,
+      alertId,
       timestamp: Date.now()
     });
   } catch (error) {
@@ -440,7 +440,7 @@ app.get('/api/monitoring/metrics/trends', (req, res) => {
     res.json({
       success: true,
       data: trends,
-      metric: metric,
+      metric,
       timeWindow: parseInt(timeWindow),
       timestamp: Date.now()
     });
@@ -465,7 +465,7 @@ app.get('/api/monitoring/system/info', (req, res) => {
         aggregator: metricsAggregator.getMemoryUsage(),
         dataPoints: metricsAggregator.getDataLength()
       },
-      config: config
+      config
     };
     
     res.json({

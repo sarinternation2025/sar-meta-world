@@ -11,7 +11,7 @@ console.log('🔧 Testing Backend Startup...\n');
 // Initialize Express app
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
+const _io = new Server(server, {
   cors: {
     origin: config.CORS_ORIGIN,
   },

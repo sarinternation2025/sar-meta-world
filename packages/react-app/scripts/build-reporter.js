@@ -1,8 +1,8 @@
 #!/usr/bin/env node
+/* eslint-env node */
 
 import { spawn } from 'child_process'
 import { writeFileSync, readFileSync, existsSync } from 'fs'
-import { join } from 'path'
 import chalk from 'chalk'
 
 class BuildReporter {
@@ -20,7 +20,7 @@ class BuildReporter {
         const data = readFileSync(this.reportPath, 'utf-8')
         this.buildResults = JSON.parse(data)
         console.log(chalk.blue(`📋 Loaded ${this.buildResults.length} previous build records`))
-      } catch (error) {
+      } catch {
         console.log(chalk.yellow('⚠️  Could not load previous report, starting fresh'))
         this.buildResults = []
       }
@@ -272,7 +272,7 @@ class BuildReporter {
 
   extractChunkInfo(output) {
     const chunks = []
-    const chunkMatches = output.matchAll(/dist\/([\w\/.-]+)\s+([\d,]+\.?\d*)\s*kB/g)
+    const chunkMatches = output.matchAll(/dist\/([\w/.-]+)\s+([\d,]+\.?\d*)\s*kB/g)
     
     for (const match of chunkMatches) {
       chunks.push({
@@ -435,7 +435,7 @@ class BuildReporter {
     }
     
     console.log(chalk.white(`\n📋 RECENT BUILDS:`))
-    stats.recentBuilds.slice(-5).forEach((build, i) => {
+    stats.recentBuilds.slice(-5).forEach((build, _i) => {
       const status = build.status === 'success' ? chalk.green('✅') : chalk.red('❌')
       const duration = build.duration ? `${build.duration}ms` : 'N/A'
       const time = new Date(build.timestamp).toLocaleTimeString()

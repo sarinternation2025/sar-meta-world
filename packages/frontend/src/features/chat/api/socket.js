@@ -6,7 +6,7 @@ export const socket = io(import.meta.env.VITE_SOCKET_URL, {
 });
 
 // Socket event handlers that can be used by the Redux slice
-export const setupSocketEventHandlers = (dispatch) => {
+export const setupSocketEventHandlers = (_dispatch) => {
   // Import actions from chatSlice to dispatch on socket events
   // We'll pass the actions as a parameter to avoid circular imports
   
@@ -27,15 +27,15 @@ export const setupSocketEventHandlers = (dispatch) => {
   });
 
   // Message events
-  socket.on('message', (message) => {
+  socket.on('message', (_message) => {
     // Dispatch will be handled by the caller with the appropriate action
   });
 
-  socket.on('user_joined', (user) => {
+  socket.on('user_joined', (_user) => {
     // Dispatch will be handled by the caller with the appropriate action
   });
 
-  socket.on('user_left', (user) => {
+  socket.on('user_left', (_user) => {
     // Dispatch will be handled by the caller with the appropriate action
   });
 

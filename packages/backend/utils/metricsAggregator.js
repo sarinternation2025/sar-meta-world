@@ -206,7 +206,7 @@ class MetricsAggregator {
       default:
         return {
           format: 'json',
-          data: data,
+          data,
           metadata: {
             totalPoints: data.length,
             startTime: data.length > 0 ? data[0].timestamp : null,

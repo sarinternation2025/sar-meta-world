@@ -3,15 +3,16 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import Globe3D from './components/Globe3D'
 import Dashboard from './components/Dashboard'
-import ParticleField from './components/ParticleField'
-import DataNodes from './components/DataNodes'
-import HolographicPanel from './components/HolographicPanel'
-import AdvancedControls from './components/AdvancedControls'
-import InteractiveTimeline from './components/InteractiveTimeline'
-import WidgetDashboard from './components/WidgetDashboard'
+// Unused imports - available for future features
+// import ParticleField from './components/ParticleField'
+// import DataNodes from './components/DataNodes'
+// import HolographicPanel from './components/HolographicPanel'
+// import AdvancedControls from './components/AdvancedControls'
+// import InteractiveTimeline from './components/InteractiveTimeline'
+// import WidgetDashboard from './components/WidgetDashboard'
 import './App.css'
 import SyncService from './services/SyncService'
-import SyncStatus from './components/SyncStatus'
+// import SyncStatus from './components/SyncStatus'
 
 function App() {
   const [view, setView] = useState('3d') // '3d', 'advanced', 'dashboard', or 'widgets'
@@ -199,23 +200,23 @@ function App() {
             {sceneMode === 'standard' && (
               <>
                 <Globe3D data={realTimeData} />
-                <DataNodes data={realTimeData} />
+                {/* <DataNodes data={realTimeData} /> */}
               </>
             )}
             
             {sceneMode === 'enhanced' && (
               <>
                 <Globe3D data={realTimeData} />
-                <ParticleField count={500} data={realTimeData} />
-                <DataNodes data={realTimeData} />
+                {/* <ParticleField count={500} data={realTimeData} /> */}
+                {/* <DataNodes data={realTimeData} /> */}
               </>
             )}
             
             {sceneMode === 'holographic' && (
               <>
                 <Globe3D data={realTimeData} />
-                <ParticleField count={1000} data={realTimeData} />
-                <DataNodes data={realTimeData} />
+                {/* <ParticleField count={1000} data={realTimeData} /> */}
+                {/* <DataNodes data={realTimeData} /> */}
                 
                 {/* Holographic panels */}
                 <HolographicPanel 

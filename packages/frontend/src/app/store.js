@@ -14,7 +14,7 @@ export const store = configureStore({
     history: historyReducer,
   },
   // Enable Redux DevTools Extension
-  devTools: process.env.NODE_ENV !== 'production',
+  devTools: import.meta.env.MODE !== 'production',
 });
 
 export default store;

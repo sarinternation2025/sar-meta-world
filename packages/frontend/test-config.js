@@ -4,7 +4,6 @@
  */
 
 import { readFileSync } from 'fs';
-import { join } from 'path';
 
 // Mock import.meta.env to simulate Vite environment
 const envFile = readFileSync('.env', 'utf8');

@@ -10,7 +10,7 @@ const SystemMonitor = () => {
   const dispatch = useDispatch();
   const { metrics, services, alerts, isLoading, error } = useSelector(state => state.monitoring);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [refreshInterval, setRefreshInterval] = useState(5000);
+  const [refreshInterval, _setRefreshInterval] = useState(5000);
   const [historicalData, setHistoricalData] = useState([]);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const SystemMonitor = () => {
     }
   }, [metrics]);
 
-  const getStatusColor = (status) => {
+  const _getStatusColor = (status) => {
     switch (status) {
       case 'online': return 'text-green-500';
       case 'offline': return 'text-red-500';

@@ -1,8 +1,8 @@
-const fs = require('fs-extra');
-const path = require('path');
-const os = require('os');
-const chalk = require('chalk');
-const moment = require('moment');
+const fs = require("fs-extra");
+const path = require("path");
+const os = require("os");
+const chalk = require("chalk");
+const moment = require("moment");
 
 /**
  * Logger levels
@@ -12,7 +12,7 @@ const LogLevel = {
   WARN: 1,
   INFO: 2,
   DEBUG: 3,
-  TRACE: 4
+  TRACE: 4,
 };
 
 /**
@@ -20,13 +20,13 @@ const LogLevel = {
  */
 class Logger {
   constructor() {
-    this.logDir = path.join(os.homedir(), '.sar-cli', 'logs');
-    this.logFile = path.join(this.logDir, 'sar-cli.log');
-    this.errorLogFile = path.join(this.logDir, 'error.log');
+    this.logDir = path.join(os.homedir(), ".sar-cli", "logs");
+    this.logFile = path.join(this.logDir, "sar-cli.log");
+    this.errorLogFile = path.join(this.logDir, "error.log");
     this.level = LogLevel.INFO;
     this.silent = false;
     this.enableFileLogging = true;
-    
+
     // Ensure log directory exists
     this.ensureLogDir();
   }
@@ -48,13 +48,13 @@ class Logger {
    * @param {string|number} level - Log level (error, warn, info, debug, trace)
    */
   setLevel(level) {
-    if (typeof level === 'string') {
+    if (typeof level === "string") {
       const levelMap = {
         error: LogLevel.ERROR,
         warn: LogLevel.WARN,
         info: LogLevel.INFO,
         debug: LogLevel.DEBUG,
-        trace: LogLevel.TRACE
+        trace: LogLevel.TRACE,
       };
       this.level = levelMap[level.toLowerCase()] || LogLevel.INFO;
     } else {
@@ -86,11 +86,19 @@ class Logger {
    * @returns {string} Formatted message
    */
   formatMessage(level, message, args) {
-    const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
-    const argsStr = args.length > 0 ? ' ' + args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-    ).join(' ') : '';
-    
+    const timestamp = moment().format("YYYY-MM-DD HH:mm:ss");
+    const argsStr =
+      args.length > 0
+        ? " " +
+          args
+            .map((arg) =>
+              typeof arg === "object"
+                ? JSON.stringify(arg, null, 2)
+                : String(arg),
+            )
+            .join(" ")
+        : "";
+
     return `[${timestamp}] [${level.toUpperCase()}] ${message}${argsStr}`;
   }
 
@@ -105,7 +113,7 @@ class Logger {
       warn: chalk.yellow,
       info: chalk.blue,
       debug: chalk.gray,
-      trace: chalk.gray
+      trace: chalk.gray,
     };
     return colors[level] || chalk.white;
   }
@@ -120,10 +128,10 @@ class Logger {
 
     try {
       await this.ensureLogDir();
-      
+
       const logFile = isError ? this.errorLogFile : this.logFile;
-      await fs.appendFile(logFile, message + '\n');
-      
+      await fs.appendFile(logFile, message + "\n");
+
       // Rotate logs if they get too large (10MB)
       const stats = await fs.stat(logFile);
       if (stats.size > 10 * 1024 * 1024) {
@@ -144,18 +152,18 @@ class Logger {
       const ext = path.extname(logFile);
       const name = path.basename(logFile, ext);
       const dir = path.dirname(logFile);
-      const timestamp = moment().format('YYYY-MM-DD_HH-mm-ss');
+      const timestamp = moment().format("YYYY-MM-DD_HH-mm-ss");
       const archivedFile = path.join(dir, `${name}_${timestamp}${ext}`);
-      
+
       await fs.move(logFile, archivedFile);
-      
+
       // Clean up old log files (keep last 10)
       const files = await fs.readdir(dir);
       const logFiles = files
-        .filter(file => file.startsWith(name + '_'))
+        .filter((file) => file.startsWith(name + "_"))
         .sort()
         .reverse();
-      
+
       if (logFiles.length > 10) {
         const filesToDelete = logFiles.slice(10);
         for (const file of filesToDelete) {
@@ -178,7 +186,7 @@ class Logger {
     if (levelValue > this.level) return;
 
     const formattedMessage = this.formatMessage(level, message, args);
-    
+
     // Console output
     if (!this.silent) {
       const color = this.getConsoleColor(level);
@@ -186,7 +194,7 @@ class Logger {
     }
 
     // File output
-    this.writeToFile(formattedMessage, level === 'error');
+    this.writeToFile(formattedMessage, level === "error");
   }
 
   /**
@@ -195,7 +203,7 @@ class Logger {
    * @param {any[]} args - Additional arguments
    */
   error(message, ...args) {
-    this.log('error', LogLevel.ERROR, message, ...args);
+    this.log("error", LogLevel.ERROR, message, ...args);
   }
 
   /**
@@ -204,7 +212,7 @@ class Logger {
    * @param {any[]} args - Additional arguments
    */
   warn(message, ...args) {
-    this.log('warn', LogLevel.WARN, message, ...args);
+    this.log("warn", LogLevel.WARN, message, ...args);
   }
 
   /**
@@ -213,7 +221,7 @@ class Logger {
    * @param {any[]} args - Additional arguments
    */
   info(message, ...args) {
-    this.log('info', LogLevel.INFO, message, ...args);
+    this.log("info", LogLevel.INFO, message, ...args);
   }
 
   /**
@@ -222,7 +230,7 @@ class Logger {
    * @param {any[]} args - Additional arguments
    */
   debug(message, ...args) {
-    this.log('debug', LogLevel.DEBUG, message, ...args);
+    this.log("debug", LogLevel.DEBUG, message, ...args);
   }
 
   /**
@@ -231,7 +239,7 @@ class Logger {
    * @param {any[]} args - Additional arguments
    */
   trace(message, ...args) {
-    this.log('trace', LogLevel.TRACE, message, ...args);
+    this.log("trace", LogLevel.TRACE, message, ...args);
   }
 
   /**
@@ -240,12 +248,12 @@ class Logger {
    * @param {any[]} args - Additional arguments
    */
   success(message, ...args) {
-    const formattedMessage = this.formatMessage('info', message, args);
-    
+    const formattedMessage = this.formatMessage("info", message, args);
+
     if (!this.silent) {
       console.log(chalk.green(formattedMessage));
     }
-    
+
     this.writeToFile(formattedMessage);
   }
 
@@ -280,9 +288,9 @@ class Logger {
     try {
       await fs.remove(this.logFile);
       await fs.remove(this.errorLogFile);
-      this.info('Log files cleared');
+      this.info("Log files cleared");
     } catch (error) {
-      this.error('Failed to clear log files:', error.message);
+      this.error("Failed to clear log files:", error.message);
     }
   }
 }
@@ -293,5 +301,5 @@ const logger = new Logger();
 module.exports = {
   Logger,
   logger,
-  LogLevel
+  LogLevel,
 };

@@ -1,6 +1,6 @@
-const { Command } = require('commander');
-const chalk = require('chalk');
-const { initializeAgent } = require('./utils/init');
+const { Command } = require("commander");
+const chalk = require("chalk");
+const { initializeAgent } = require("./utils/init");
 
 /**
  * SAR CLI Agent - Main entry point
@@ -24,9 +24,12 @@ class SARCLIAgent {
     try {
       await initializeAgent(force);
       this.initialized = true;
-      console.log(chalk.green('✓ SAR CLI Agent initialized successfully'));
+      console.log(chalk.green("✓ SAR CLI Agent initialized successfully"));
     } catch (error) {
-      console.error(chalk.red('✗ Failed to initialize SAR CLI Agent:'), error.message);
+      console.error(
+        chalk.red("✗ Failed to initialize SAR CLI Agent:"),
+        error.message,
+      );
       process.exit(1);
     }
   }
@@ -47,7 +50,7 @@ class SARCLIAgent {
    * Get the current version
    */
   getVersion() {
-    return require('../package.json').version;
+    return require("../package.json").version;
   }
 
   /**
@@ -60,5 +63,5 @@ class SARCLIAgent {
 
 module.exports = {
   SARCLIAgent,
-  initializeAgent
+  initializeAgent,
 };

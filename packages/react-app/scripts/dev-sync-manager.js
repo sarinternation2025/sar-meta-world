@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+/* eslint-env node */
 
 import { spawn, exec } from 'child_process'
 import { watch } from 'chokidar'
 import { WebSocketServer } from 'ws'
 import { createServer } from 'http'
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { readFileSync as _readFileSync, writeFileSync as _writeFileSync, existsSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import chalk from 'chalk'
@@ -431,7 +432,7 @@ const missingDeps = requiredDeps.filter(dep => {
 
 if (missingDeps.length > 0) {
   console.log(chalk.yellow(`📦 Installing missing dependencies: ${missingDeps.join(', ')}`))
-  exec(`npm install ${missingDeps.join(' ')}`, (error, stdout, stderr) => {
+  exec(`npm install ${missingDeps.join(' ')}`, (error, _stdout, _stderr) => {
     if (error) {
       console.error(chalk.red('❌ Failed to install dependencies:'), error)
       process.exit(1)

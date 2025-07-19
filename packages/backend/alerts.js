@@ -50,7 +50,7 @@ const checkAlerts = (metrics, customThresholds = null) => {
   const currentTime = Date.now();
   
   // Use custom thresholds if provided
-  const thresholds = customThresholds || {
+  const _thresholds = customThresholds || {
     cpu: 80,
     memory: 85,
     disk: 90
@@ -70,7 +70,7 @@ const checkAlerts = (metrics, customThresholds = null) => {
       const alert = {
         id: rule.id,
         metric: rule.metric,
-        threshold: threshold,
+        threshold,
         level: rule.level,
         message: rule.message,
         description: rule.description,

@@ -3,5 +3,5 @@ function initializeAgent(force) {
 }
 
 module.exports = {
-  initializeAgent
+  initializeAgent,
 };

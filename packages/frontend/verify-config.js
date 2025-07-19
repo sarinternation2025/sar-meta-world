@@ -7,7 +7,6 @@
 
 import { spawn } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
 
 console.log('🔒 Verifying Environment Configuration');
 console.log('=====================================');

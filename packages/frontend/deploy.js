@@ -6,9 +6,8 @@
  */
 
 import { spawn } from 'child_process';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { writeFileSync, existsSync } from 'fs';
 import { platform } from 'os';
-import { join } from 'path';
 
 // Colors for terminal output
 const colors = {
@@ -54,7 +53,7 @@ async function checkPrerequisites() {
   try {
     const nodeVersion = process.version;
     logSuccess(`Node.js version: ${nodeVersion}`);
-  } catch (error) {
+  } catch {
     logError('Node.js is not installed or not accessible');
     process.exit(1);
   }
@@ -70,7 +69,7 @@ async function checkPrerequisites() {
         process.exit(1);
       }
     });
-  } catch (error) {
+  } catch {
     logError('npm is not installed or not accessible');
     process.exit(1);
   }
